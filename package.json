@@ -1,0 +1,39 @@
+{
+  "name": "@vergestack/monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for VergeStack",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test && pnpm run playwright",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "playwright": "pnpm --filter tests playwright",
+    "playwright:ui": "pnpm --filter tests playwright:ui"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "keywords": [
+    "vergestack",
+    "next",
+    "server",
+    "actions",
+    "routes",
+    "hooks"
+  ],
+  "author": "Adam Mikacich",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^28.8.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3"
+  }
+}
