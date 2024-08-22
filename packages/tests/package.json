@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "playwright": "playwright test",
+    "playwright:install": "playwright install-deps",
     "playwright:ui": "playwright test --ui"
   },
   "repository": {
