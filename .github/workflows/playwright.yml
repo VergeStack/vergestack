@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Tests
 on:
   push:
     branches: [main]
@@ -18,12 +18,12 @@ jobs:
           version: latest
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Install Playwright Browsers
-        run: pnpm playwright install --with-deps
       - name: Build tests
         run: pnpm -r build
+      - name: Run Jest tests
+        run: pnpm run test
       - name: Run Playwright tests
-        run: pnpm playwright test
+        run: pnpm run playwright
       - uses: actions/upload-artifact@v4
         if: always()
         with:
