@@ -10,8 +10,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "playwright": "pnpm --filter tests playwright",
-    "playwright:ui": "pnpm --filter tests playwright:ui"
+    "playwright": "pnpm --filter tests run playwright",
+    "playwright:install": "pnpm --filter tests run playwright:install",
+    "playwright:ui": "pnpm --filter tests run playwright:ui"
   },
   "workspaces": [
     "packages/*"
