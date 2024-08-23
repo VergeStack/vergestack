@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build tests
-        run: pnpm -r build
+        run: pnpm run build
       - name: Run Jest tests
         run: pnpm run test
       - name: Install Playwright Browsers

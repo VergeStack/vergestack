@@ -1,4 +1,4 @@
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import {
   createAction,
@@ -36,7 +36,11 @@ describe('useAction', () => {
 
     expect(result.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(result.data).toBeUndefined();
-    expect(result.errors).toEqual([]);
+    expect(result.errors).toEqual([
+      {
+        message: ReasonPhrases.INTERNAL_SERVER_ERROR
+      }
+    ]);
   });
 
   test('visible internal error', async () => {

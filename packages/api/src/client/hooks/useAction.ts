@@ -1,7 +1,6 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ApiResponse, ErrorMessage } from '../../types/responses';
-import { ApiContext } from '../providers';
 
 export function useAction<InputType, OutputType>(
   actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>
@@ -14,7 +13,13 @@ export function useAction<InputType, OutputType>(
     new Set<string>()
   );
 
-  const { handlers } = useContext(ApiContext);
+  // const { handlers } = useContext(ApiContext);
+
+  const handlers = {
+    onError: (message: string) => {
+      console.error(message);
+    }
+  };
 
   const execute = useCallback(
     async (inputData: InputType): Promise<void> => {
@@ -48,7 +53,7 @@ export function useAction<InputType, OutputType>(
         setLoading(false);
       }
     },
-    [actionHandler, loading, registeredPaths, handlers]
+    [actionHandler]
   );
 
   const executeForm = async (formData: FormData): Promise<void> => {

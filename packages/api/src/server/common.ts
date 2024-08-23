@@ -1,4 +1,4 @@
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { ZodType } from 'zod';
 import { ApiError, ApiResponse } from '../types';
 
@@ -41,6 +41,9 @@ export async function execute<InputType, OutputType>(
     }
 
     const status = StatusCodes.INTERNAL_SERVER_ERROR;
-    return { status, errors: [] };
+    return {
+      status,
+      errors: [{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]
+    };
   }
 }
