@@ -9,7 +9,7 @@
     "lint": "next lint",
     "playwright": "playwright test",
     "playwright:ui": "playwright test --ui",
-    "playwright:install": "playwright install"
+    "playwright:install": "playwright install --with-deps"
   },
   "repository": {
     "type": "git",
