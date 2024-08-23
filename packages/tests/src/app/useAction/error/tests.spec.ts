@@ -3,12 +3,12 @@ import { expect, test } from '@playwright/test';
 test('useAction error', async ({ page }) => {
   await page.goto('/useAction/error');
 
-  // Wait for the loading indicator to disappear
-  await page.waitForSelector('p#data:has-text("Loading...")', {
-    state: 'detached'
-  });
+  // Wait for the action to be triggered
+  await page.waitForSelector('p#triggered:has-text("true")');
 
-  // Check if the greeting text is present
+  // Wait for loading to finish
+  await page.waitForSelector('p#data:empty', { state: 'attached' });
+
   const errorText = await page.textContent('p#error');
   expect(errorText).toBe('[{"message":"Internal Server Error"}]');
 });
