@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "declaration": true,
+    "jsx": "react",
     "types": ["jest"]
   },
   "include": ["src"],

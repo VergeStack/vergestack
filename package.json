@@ -13,7 +13,7 @@
     "playwright": "pnpm --filter tests run playwright",
     "playwright:install": "pnpm --filter tests run playwright:install",
     "playwright:ui": "pnpm --filter tests run playwright:ui",
-    "release": "pnpm run build && pnpm run test && pnpm run playwright"
+    "release": "pnpm i && pnpm run build && pnpm run test && pnpm run playwright"
   },
   "workspaces": [
     "packages/*"
@@ -29,6 +29,7 @@
   "author": "Adam Mikacich",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
     "eslint-config-prettier": "^9.1.0",

@@ -1,6 +1,6 @@
+import { ApiResponse, ErrorMessage } from '@vergestack/api';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { useCallback, useMemo, useState } from 'react';
-import { ApiResponse, ErrorMessage } from '../../types/responses';
 
 export function useAction<InputType, OutputType>(
   actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>

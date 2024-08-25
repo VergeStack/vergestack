@@ -1,6 +1,6 @@
 'use client';
 
-import { useAction } from '@vergestack/api/dist/client';
+import { useAction } from '@vergestack/api-react';
 import { useEffect } from 'react';
 import { delayAction } from './action';
 

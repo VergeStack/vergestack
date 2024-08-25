@@ -1,6 +1,6 @@
 'use client';
 
-import { useAction } from '@vergestack/api/dist/client';
+import { useAction } from '@vergestack/api-react';
 import { useEffect, useState } from 'react';
 import { errorAction } from './action';
 
