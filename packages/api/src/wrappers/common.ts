@@ -11,7 +11,6 @@ export async function execute<InputType, OutputType>(
   const { error: inputErrors, data: input } = inputSchema.safeParse(inputData);
 
   if (inputErrors) {
-    console.log(inputErrors.issues);
     return {
       errors: inputErrors.issues.map((issue) => ({
         message: issue.message,

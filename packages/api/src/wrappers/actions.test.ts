@@ -26,10 +26,9 @@ describe('wrapAction', () => {
 
   it('should throw an error for invalid input', async () => {
     const action = wrapAction(inputSchema, outputSchema, greetingFunction);
-    // We're passing a number (123) for the 'name' field, which should be a string
-    // The 'as any' cast is used to bypass TypeScript's type checking for this test
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await action({ name: 123 } as any);
+
+    // @ts-expect-error: Intentionally passing invalid input for testing
+    const result = await action({ name: 123 });
     expect(result).toEqual({
       status: StatusCodes.BAD_REQUEST,
       errors: [{ message: 'Expected string, received number', path: 'name' }]
