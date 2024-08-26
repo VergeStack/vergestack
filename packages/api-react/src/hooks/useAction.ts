@@ -1,6 +1,7 @@
 import { ApiResponse, ErrorMessage } from '@vergestack/api';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
+import { ApiContext } from '../providers';
 
 export function useAction<InputType, OutputType>(
   actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>
@@ -13,13 +14,7 @@ export function useAction<InputType, OutputType>(
     new Set<string>()
   );
 
-  // const { handlers } = useContext(ApiContext);
-
-  const handlers = {
-    onError: (message: string) => {
-      console.error(message);
-    }
-  };
+  const { handlers } = useContext(ApiContext);
 
   const execute = useCallback(
     async (inputData: InputType): Promise<void> => {
