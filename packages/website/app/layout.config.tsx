@@ -1,17 +1,18 @@
-import { type DocsLayoutProps } from 'fumadocs-ui/layout';
-import { type HomeLayoutProps } from 'fumadocs-ui/home-layout';
 import { pageTree } from '@/app/source';
+import { type HomeLayoutProps } from 'fumadocs-ui/home-layout';
+import { type DocsLayoutProps } from 'fumadocs-ui/layout';
+import { IoLogoGithub } from 'react-icons/io5';
 
 // shared configuration
 export const baseOptions: HomeLayoutProps = {
   nav: {
-    title: 'My App'
+    title: 'VergeStack'
   },
   links: [
     {
-      text: 'Documentation',
-      url: '/docs',
-      active: 'nested-url'
+      text: 'GitHub',
+      url: 'https://github.com/vergestack',
+      icon: <IoLogoGithub />
     }
   ]
 };
