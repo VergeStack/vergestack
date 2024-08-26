@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes';
 import { useAction } from './useAction';
 
 describe('useAction', () => {
-  // Mock action handler
   const mockActionHandler = jest.fn();
 
   beforeEach(() => {
