@@ -8,21 +8,22 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "^14.2.5",
-    "fumadocs-ui": "13.3.2",
     "fumadocs-core": "13.3.2",
+    "fumadocs-docgen": "^1.1.0",
+    "fumadocs-mdx": "9.0.2",
+    "fumadocs-ui": "13.3.2",
+    "next": "^14.2.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "fumadocs-mdx": "9.0.2"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/mdx": "^2.0.13",
     "@types/node": "22.3.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "typescript": "^5.5.4",
-    "@types/mdx": "^2.0.13",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.41",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
   }
 }

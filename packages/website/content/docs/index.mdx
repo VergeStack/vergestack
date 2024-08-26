@@ -1,13 +1,64 @@
 ---
-title: Hello World
-description: Your first document
+title: 'Introduction'
+description: Server action and route handler helpers
+icon: House
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+Welcome to the official documentation for `@vergestack/api`.
 
-## What is Next?
+### Overview
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
+VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. This means that type information is shared between server and client logic, reducing the likelihood of runtime errors and improving overall code quality.
+
+### Features
+
+1. **Type Safety and Validation**: Define server actions and route handlers with input and output schemas using zod.
+2. **Client-Side Hooks**: Use the `useAction` and `useFormAction` hooks to interact with server actions from client-side components.
+3. **Server-Side Helpers**: Use the `createAction` and `createRoute` functions to define server actions and route handlers with ease.
+4. **Integrated with VergeStack**: Works seamlessly with other VergeStack libraries such as `@vergestack/ui`.
+
+### Defining Server Actions
+
+Server actions in VergeStack are defined using the createAction function. This function allows you to specify input and output schemas using the zod library, ensuring that your actions are type-safe and validated. Below is an example of how to define a server action that generates a greeting message based on the input provided.
+
+```ts title="actions.ts"
+import { createAction } from '@vergestack/api';
+import { z } from 'zod';
+
+// Define the input schema using Zod
+const inputSchema = z.object({
+  name: z.string(),
+});
+
+// Define the output schema using Zod
+const outputSchema = z.string();
+
+// Create a server action with input and output validation
+export const greetingAction = createAction()
+  .input(inputSchema)
+  .output(outputSchema)
+  .handler(async (input) => {
+    return `Hello, ${input.name}`;
+  });
+```
+
+### Using Server Actions
+
+Once you have defined a server action, you can use it in your route handlers to process incoming requests. Below is an example of how to use the `greetingAction` in a client-side component.
+
+```tsx title="client.tsx"
+export const GreetingComponent = () => {
+  const { execute, data, error } = useFormAction(greetingAction);
+
+  return (
+    <div>
+      <form action={execute}>
+        <input type="text" name="name" />
+        <button type="submit">Generate Greeting</button>
+      </form>
+      {data && <p>{data.message}</p>}
+      {error && <p>{error}</p>}
+    </div>
+  );
+};
+```
