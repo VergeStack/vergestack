@@ -4,12 +4,12 @@ import {
   DocsPage,
   DocsBody,
   DocsDescription,
-  DocsTitle,
+  DocsTitle
 } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 
 export default async function Page({
-  params,
+  params
 }: {
   params: { slug?: string[] };
 }) {
@@ -34,7 +34,7 @@ export default async function Page({
 
 export async function generateStaticParams() {
   return getPages().map((page) => ({
-    slug: page.slugs,
+    slug: page.slugs
   }));
 }
 
@@ -45,6 +45,6 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    description: page.data.description
   } satisfies Metadata;
 }
