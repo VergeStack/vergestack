@@ -15,9 +15,6 @@
     "playwright:ui": "pnpm --filter tests run playwright:ui",
     "release": "pnpm i && pnpm run build && pnpm run test && pnpm run playwright"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "keywords": [
     "vergestack",
     "next",
