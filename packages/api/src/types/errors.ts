@@ -26,6 +26,13 @@ export class ForbiddenError extends ApiError {
   }
 }
 
+export class BadRequestError extends ApiError {
+  constructor(message: string, path?: string) {
+    super(message, StatusCodes.BAD_REQUEST, path);
+    this.name = 'BadRequestError';
+  }
+}
+
 export class NotFoundError extends ApiError {
   constructor(message: string, path?: string) {
     super(message, StatusCodes.NOT_FOUND, path);
