@@ -1,9 +1,9 @@
-import Logo from '@/app/assets/logo.png';
+import LogoTransparent from '@/app/assets/logo_transparent.png';
 import { pageTree } from '@/app/source';
 import { RootToggle } from 'fumadocs-ui/components/layout/root-toggle';
 import { type HomeLayoutProps } from 'fumadocs-ui/home-layout';
 import { type DocsLayoutProps } from 'fumadocs-ui/layout';
-import { Cable, PanelsTopLeft, UserCircle } from 'lucide-react';
+import { Cable, UserCircle } from 'lucide-react';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { IoLogoGithub } from 'react-icons/io5';
@@ -13,7 +13,7 @@ export const baseOptions: HomeLayoutProps = {
   nav: {
     title: (
       <>
-        <Image src={Logo} alt="VergeStack" width={48} />
+        <Image src={LogoTransparent} alt="VergeStack" width={36} />
         <span>VergeStack</span>
       </>
     )
@@ -40,8 +40,8 @@ export const docsOptions: DocsLayoutProps = {
       <RootToggle
         options={[
           {
-            title: 'api',
-            description: '@vergestack/api',
+            title: 'API',
+            description: 'Typesafe requests',
             url: '/docs/api',
             icon: (
               <Icon>
@@ -50,18 +50,8 @@ export const docsOptions: DocsLayoutProps = {
             )
           },
           {
-            title: 'api-react',
-            description: '@vergestack/api-react',
-            url: '/docs/api-react',
-            icon: (
-              <Icon>
-                <PanelsTopLeft />
-              </Icon>
-            )
-          },
-          {
-            title: 'auth',
-            description: '@vergestack/auth',
+            title: 'Auth',
+            description: 'Secure authentication',
             url: '/docs/auth',
             icon: (
               <Icon>

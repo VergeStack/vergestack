@@ -1,0 +1,15 @@
+{
+  "root": true,
+  "title": "VergeStack/api",
+  "pages": [
+    "---Guides---",
+    "index",
+    "gettingStarted",
+    "---Server Functions---",
+    "createAction",
+    "createRoute",
+    "---Hooks---",
+    "useAction",
+    "useFormAction"
+  ]
+}
