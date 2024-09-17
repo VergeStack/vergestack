@@ -1,25 +1,22 @@
 ---
 title: 'Introduction'
-description: Server action and route handler helpers
+description: 'Welcome to the @vergestack/api documentation'
 icon: House
 ---
 
-Welcome to the official documentation for `@vergestack/api`.
-
 ### Overview
 
-VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. This means that type information is shared between server and client logic, reducing the likelihood of runtime errors and improving overall code quality.
+VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. Type information is shared between server and client logic, reducing the likelihood of runtime errors and improving overall code quality.
 
 ### Features
 
-1. **Type Safety and Validation**: Define server actions and route handlers with input and output schemas using zod.
-2. **Client-Side Hooks**: Use the `useAction` and `useFormAction` hooks to interact with server actions from client-side components.
-3. **Server-Side Helpers**: Use the `createAction` and `createRoute` functions to define server actions and route handlers with ease.
-4. **Integrated with VergeStack**: Works seamlessly with other VergeStack libraries such as `@vergestack/ui`.
+1. **Type Safety and Validation**: Define server actions and route handlers with input and output schemas using `zod`.
+2. **Server-Side Helpers**: Use the `createAction` and `createRoute` functions to define server actions and route handlers with ease.
+3. **Client-Side Hooks**: Use the `useAction` and `useFormAction` hooks to interact with server actions from client-side components.
 
 ### Defining Server Actions
 
-Server actions in VergeStack are defined using the createAction function. This function allows you to specify input and output schemas using the zod library, ensuring that your actions are type-safe and validated. Below is an example of how to define a server action that generates a greeting message based on the input provided.
+Server actions in VergeStack are defined using the createAction function. This function allows you to specify input and output schemas using the zod library, ensuring that your actions are type-safe and validated. Below is an example of how to define a server action that generates a greeting message based on the provided input.
 
 ```ts title="actions.ts"
 import { createAction } from '@vergestack/api';
@@ -27,7 +24,7 @@ import { z } from 'zod';
 
 // Define the input schema using Zod
 const inputSchema = z.object({
-  name: z.string(),
+  name: z.string()
 });
 
 // Define the output schema using Zod
