@@ -44,6 +44,8 @@ export const greetingAction = createAction()
 Once you have defined a server action, you can use it in your route handlers to process incoming requests. Below is an example of how to use the `greetingAction` in a client-side component.
 
 ```tsx title="client.tsx"
+import { useFormAction } from '@vergestack/api-react';
+
 export const GreetingComponent = () => {
   const { execute, data, error } = useFormAction(greetingAction);
 
