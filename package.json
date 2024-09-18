@@ -13,7 +13,7 @@
     "playwright": "pnpm --filter tests run playwright",
     "playwright:install": "pnpm --filter tests run playwright:install",
     "playwright:ui": "pnpm --filter tests run playwright:ui",
-    "release": "pnpm i && pnpm run build && pnpm run test && pnpm run playwright",
+    "prepublish": "pnpm i && pnpm run build && pnpm run test && pnpm run playwright",
     "changeset:change": "pnpm changeset",
     "changeset:version": "pnpm changeset version",
     "changeset:publish": "pnpm changeset publish"
