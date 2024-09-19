@@ -9,7 +9,6 @@
     "createAction",
     "createRoute",
     "---Hooks---",
-    "useAction",
-    "useFormAction"
+    "useAction"
   ]
 }
