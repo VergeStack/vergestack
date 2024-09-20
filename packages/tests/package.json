@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "rimraf .next && next build",
     "start": "next start",
     "lint": "next lint",
     "playwright": "playwright test",
@@ -30,6 +30,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "rimraf": "^6.0.1",
     "@playwright/test": "^1.46.0",
     "@types/node": "^20.16.1",
     "@types/react": "^18",
