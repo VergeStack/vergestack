@@ -12,8 +12,7 @@
     "build": "rimraf dist && tsc --build",
     "watch": "rimraf dist && tsc -w",
     "test": "jest",
-    "watch:test": "jest --watch",
-    "prepublish": "pnpm -w run prepublish"
+    "watch:test": "jest --watch"
   },
   "repository": {
     "type": "git",
