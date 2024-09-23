@@ -1,3 +1,117 @@
 ---
 title: createAction
 ---
+
+The `createAction` function is a powerful utility for creating type-safe, validated API actions with ease. It provides a fluent interface for defining input and output schemas, as well as the action handler, ensuring type safety and runtime validation.
+
+## Usage
+
+Here's an example of using `createAction` to define a server action:
+
+```typescript
+'use server';
+
+import { createAction } from '@vergestack/api';
+import { z } from 'zod';
+
+export const greetingAction = createAction()
+  .input(z.string())
+  .output(z.string())
+  .handler(async (name) => {
+    return `Hello, ${name}!`;
+  });
+```
+
+This action can be used in a Next.js application as a server action, providing type safety and input/output validation.
+
+## API
+
+### `createAction()`
+
+Creates a new action creator instance with a fluent interface.
+
+### `.input(schema: ZodType)`
+
+Defines the input schema for the action using a Zod schema.
+
+### `.output(schema: ZodType)`
+
+Defines the output schema for the action using a Zod schema.
+
+### `.handler(fn: (input: InputType) => Promise<OutputType>)`
+
+Defines the handler function for the action. This function receives the validated input and should return a promise that resolves to the output matching the defined output schema.
+
+## Features
+
+1. **Type Safety**: The action creator ensures type safety throughout the action definition and usage.
+
+2. **Input Validation**: Input is automatically validated against the defined Zod schema before reaching the handler.
+
+3. **Output Validation**: The handler's output is validated against the defined output schema before being returned.
+
+4. **Error Handling**: The action creator handles various error types and returns appropriate HTTP status codes:
+
+   - `BadRequestError` (400) for invalid input
+   - `UnauthorizedError` (401) for unauthorized access
+   - `ForbiddenError` (403) for forbidden access
+   - `NotFoundError` (404) for not found resources
+   - `VisibleInternalError` (500) for internal errors that should be visible to the user
+   - Other errors are treated as internal server errors (500)
+
+5. **Consistent Response Format**: All responses follow a consistent format with `status`, `data`, and `errors` fields.
+
+## Testing
+
+You can easily test actions created with `createAction`. Here's an example:
+
+```typescript
+import { StatusCodes } from 'http-status-codes';
+import { z } from 'zod';
+import { createAction } from '@vergestack/api';
+
+describe('createAction', () => {
+  test('success', async () => {
+    const greetingAction = createAction()
+      .input(z.string())
+      .output(z.string())
+      .handler(async (name) => {
+        return `Hello, ${name}!`;
+      });
+
+    const result = await greetingAction('World');
+
+    expect(result.status).toBe(StatusCodes.OK);
+    expect(result.data).toBe('Hello, World!');
+    expect(result.errors).toBeUndefined();
+  });
+
+  // Add more tests for error cases...
+});
+```
+
+## Additional Usage
+
+```typescript
+'use server';
+
+import { createAction } from '@vergestack/api';
+import { z } from 'zod';
+
+export const greetingAction = createAction()
+  .input(
+    z.object({
+      name: z.string().min(1, 'Name is required')
+    })
+  )
+  .output(
+    z.object({
+      message: z.string()
+    })
+  )
+  .handler(async (input) => {
+    return {
+      message: `Hello, ${input.name}!`
+    };
+  });
+```
