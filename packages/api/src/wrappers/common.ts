@@ -2,10 +2,14 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { ZodType } from 'zod';
 import { ApiError, ApiResponse } from '../types';
 
+export type ApiHandler<InputType, OutputType> = (
+  input: InputType
+) => Promise<OutputType>;
+
 export async function execute<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
   outputSchema: ZodType<OutputType>,
-  fn: (input: InputType) => Promise<OutputType>,
+  fn: ApiHandler<InputType, OutputType>,
   inputData: InputType
 ): Promise<ApiResponse<OutputType>> {
   const { error: inputErrors, data: input } = inputSchema.safeParse(inputData);
