@@ -91,15 +91,3 @@ export function useAction<InputType, OutputType>(
     getFormError
   };
 }
-
-export type UseActionResult<InputType, OutputType> = ReturnType<
-  typeof useAction<InputType, OutputType>
->;
-
-export type TestInterface1 = {
-  test2: boolean;
-};
-
-export interface TestInterface2 {
-  test: boolean;
-}
