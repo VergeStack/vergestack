@@ -6,58 +6,113 @@ icon: House
 
 ### Overview
 
-VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. Type information is shared between server and client logic, reducing the likelihood of runtime errors and improving overall code quality.
+VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. Server and client logic share type information, reducing the likelihood of runtime errors and improving overall code quality.
 
 ### Features
 
-1. **Type Safety and Validation**: Define server actions and route handlers with input and output schemas using `zod`.
-2. **Server-Side Helpers**: Use the `createAction` and `createRoute` functions to define server actions and route handlers with ease.
-3. **Client-Side Hooks**: Use the `useAction` and `useFormAction` hooks to interact with server actions from client-side components.
+1. **Type Safety and Validation**: Define input and output schemas using `zod` for robust type checking.
+2. **Server-Side Helpers**: Easily create actions and routes with `createAction` and `createRoute` functions.
+3. **Client-Side Integration**: Interact with server-side logic using `useAction` and `useRoute` hooks in components.
 
-### Defining Server Actions
+### Defining Endpoints
 
-Server actions in VergeStack are defined using the createAction function. This function allows you to specify input and output schemas using the zod library, ensuring that your actions are type-safe and validated. Below is an example of how to define a server action that generates a greeting message based on the provided input.
+Server actions and routes in VergeStack are defined using the `createAction` and `createRoute` functions, respectively. These functions allow you to specify input and output schemas using the zod library, ensuring that your server-side logic is type-safe and validated. Below are examples of how to define a server action and a route that generate greeting messages based on the provided input.
 
-```ts title="actions.ts"
-import { createAction } from '@vergestack/api';
-import { z } from 'zod';
+<Tabs items={['actions.ts', 'routes.ts']}>
+  <Tab value="actions.ts" label="actions.ts">
 
-// Define the input schema using Zod
-const inputSchema = z.object({
-  name: z.string()
-});
+    ```ts
+    'use server';
 
-// Define the output schema using Zod
-const outputSchema = z.string();
+    import { createAction } from '@vergestack/api';
+    import { z } from 'zod';
 
-// Create a server action with input and output validation
-export const greetingAction = createAction()
-  .input(inputSchema)
-  .output(outputSchema)
-  .handler(async (input) => {
-    return `Hello, ${input.name}`;
-  });
-```
+    export const greetingAction = createAction()
+      .input(z.string())
+      .output(z.string())
+      .handler(async (input) => {
+        return `Hello, ${input}!`;
+      });
+    ```
 
-### Using Server Actions
+  </Tab>
+  <Tab value="routes.ts" label="routes.ts">
 
-Once you have defined a server action, you can use it in your route handlers to process incoming requests. Below is an example of how to use the `greetingAction` in a client-side component.
+    ```ts
+    import { createRoute } from '@vergestack/api';
+    import { z } from 'zod';
 
-```tsx title="client.tsx"
-import { useFormAction } from '@vergestack/api-react';
+    export const POST = createRoute()
+      .input(z.string())
+      .output(z.string())
+      .handler(async (input, { ctx }) => {
+        return `Hello from ${ctx.req.url}, ${input}!`;
+      });
+    ```
 
-export const GreetingComponent = () => {
-  const { execute, data, error } = useFormAction(greetingAction);
+  </Tab>
+</Tabs>
 
-  return (
-    <div>
-      <form action={execute}>
-        <input type="text" name="name" />
-        <button type="submit">Generate Greeting</button>
-      </form>
-      {data && <p>{data.message}</p>}
-      {error && <p>{error}</p>}
-    </div>
-  );
-};
-```
+### Using Endpoints
+
+Once you have defined a server action or route handler, you can call it from a client-side component. Below is an example of how to use the `greetingAction` and `POST` route in a client-side component.
+
+<Tabs items={['ActionComponent.tsx', 'RouteComponent.tsx']}>
+  <Tab value="ActionComponent.tsx" label="ActionComponent.tsx">
+
+    ```tsx
+    import { useAction } from '@vergestack/api-react';
+    import { greetingAction } from './actions';
+
+    export const ActionComponent = () => {
+      const { execute, data, error } = useAction(greetingAction);
+
+      return (
+        <div>
+          <form action={execute}>
+            <input type="text" name="name" />
+            <button type="submit">Generate Greeting</button>
+          </form>
+          {data && <p>Response: {data}</p>}
+          {error && <p>Error: {error}</p>}
+        </div>
+      );
+    };
+    ```
+
+  </Tab>
+  <Tab value="RouteComponent.tsx" label="RouteComponent.tsx">
+
+    ```tsx
+    import { useRoute } from '@vergestack/api-react';
+
+    export const RouteComponent = () => {
+      const { execute, data, error } = useRoute('path/to/route');
+
+      return (
+        <div>
+          <form action={execute}>
+            <input type="text" name="name" />
+            <button type="submit">Generate Greeting</button>
+          </form>
+          {data && <p>Response: {data}</p>}
+          {error && <p>Error: {error}</p>}
+        </div>
+      );
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+### FAQ
+
+#### What is an endpoint?
+
+An endpoint is a function defined with the `createAction` or `createRoute` functions.
+
+#### What is the difference between `createAction` and `createRoute`?
+
+`createAction` is used to define server actions, which are functions that can be called from the client-side. These are best for creating server-side logic that needs to be executed in response to a client-side action, such as form submission.
+
+`createRoute` is used to define server routes, which are traditional REST API endpoints (`GET`, `POST`, `PUT`, `DELETE`). These endpoints are useful for creating traditional REST API endpoints that can be consumed by other services (i.e. API clients, webhooks, etc).

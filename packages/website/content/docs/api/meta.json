@@ -8,7 +8,7 @@
     "---Server Functions---",
     "createAction",
     "createRoute",
-    "---Hooks---",
+    "---Client Hooks---",
     "useAction"
   ]
 }
