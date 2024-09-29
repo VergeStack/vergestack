@@ -8,6 +8,8 @@ The `useAction` hook is a powerful utility for handling asynchronous actions in 
 
 ## Form Usage
 
+The `useAction` hook can be used to handle form submissions. It provides an `executeForm` function to execute the action with a `FormData` input. Each input field is mapped within a JSON object and validated against the action's input schema. For instance, if the action expects an object with a `name` field, the form input should have a name attribute of `name`.
+
 <Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
 
@@ -59,6 +61,73 @@ The `useAction` hook is a powerful utility for handling asynchronous actions in 
 <Callout title="Note">
   When working with a form, you should always use the `executeForm` helper
   unless you have a special use case.
+</Callout>
+
+## Form Error Handling
+
+The `getFormError` function is used to retrieve form-specific errors. The function accepts a `path` argument used to match against. If an error exists with the given path, the error message is returned. If no error exists, `undefined` is returned.
+
+An error's path is determined by the zod schema or optionally explicitly defined when throwing a custom error (see [Custom Errors](/docs/api/customErrors)).
+
+<Tabs items={['Greeting.tsx', 'actions.ts']}>
+  <Tab value="Greeting.tsx">
+
+    ```tsx
+    import { useAction } from '@vergestack/api-react';
+    import { greetingAction } from './actions';
+
+    export function GreetingComponent() {
+      const { executeForm, getFormError } = useAction(greetAction);
+
+      return (
+        <>
+          <form action={executeForm}>
+            <input name="name" />
+            <p className="text-red-500"> // [!code highlight]
+              {getFormError('name')} // [!code highlight]
+            </p> // [!code highlight]
+            <button type="submit">Greet</button>
+          </form>
+        </>
+      );
+    }
+    ```
+
+  </Tab>
+  <Tab value="actions.ts">
+  
+    ```ts
+    'use server';
+
+    import { createAction } from '@vergestack/api';
+    import { z } from 'zod';
+
+    export const greetingAction = createAction()
+      .input(
+        z.object({
+          name: z.string().min(1)
+        })
+      )
+      .output(z.string())
+      .handler(async ({ name }) => {
+        return `Hello, ${name}!`;
+      });
+    ```
+
+  </Tab>
+</Tabs>
+
+<Callout title="Note" type="warn">
+  Registering a `getFormError` handler will cause all `onError` handlers to
+  receive the `supressed` flag set to `true`.
+</Callout>
+
+<Callout title="Suggestion">
+  Register a `getFormError` handler to provide inline error feedback to the user
+  for fields such as an email or password. Then, use an `onError` handler to
+  provide a fallback error message for all other cases. Make sure to ignore
+  messages with the `supressed` flag set to `true` to avoid duplicate error
+  messages.
 </Callout>
 
 ## Direct Usage
