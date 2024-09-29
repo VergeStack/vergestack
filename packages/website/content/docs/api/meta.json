@@ -9,6 +9,10 @@
     "createAction",
     "createRoute",
     "---Client Hooks---",
-    "useAction"
+    "useAction",
+    "useRoute",
+    "---Configuration---",
+    "globalConfiguration",
+    "localConfiguration"
   ]
 }

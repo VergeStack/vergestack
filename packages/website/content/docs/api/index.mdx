@@ -13,6 +13,7 @@ VergeStack API provides utilities to define server actions and route handlers wi
 1. **Type Safety and Validation**: Define input and output schemas using `zod` for robust type checking.
 2. **Server-Side Helpers**: Easily create actions and routes with `createAction` and `createRoute` functions.
 3. **Client-Side Integration**: Interact with server-side logic using `useAction` and `useRoute` hooks in components.
+4. **Lightweight Design**: VergeStack acts as a thin wrapper over existing action and route behavior.
 
 ### Defining Endpoints
 
@@ -65,11 +66,11 @@ Once you have defined a server action or route handler, you can call it from a c
     import { greetingAction } from './actions';
 
     export const ActionComponent = () => {
-      const { execute, data, error } = useAction(greetingAction);
+      const { executeForm, data, error } = useAction(greetingAction);
 
       return (
         <div>
-          <form action={execute}>
+          <form action={executeForm}>
             <input type="text" name="name" />
             <button type="submit">Generate Greeting</button>
           </form>
@@ -87,11 +88,11 @@ Once you have defined a server action or route handler, you can call it from a c
     import { useRoute } from '@vergestack/api-react';
 
     export const RouteComponent = () => {
-      const { execute, data, error } = useRoute('path/to/route');
+      const { executeForm, data, error } = useRoute('path/to/route');
 
       return (
         <div>
-          <form action={execute}>
+          <form action={executeForm}>
             <input type="text" name="name" />
             <button type="submit">Generate Greeting</button>
           </form>
@@ -115,4 +116,4 @@ An endpoint is a function defined with the `createAction` or `createRoute` funct
 
 `createAction` is used to define server actions, which are functions that can be called from the client-side. These are best for creating server-side logic that needs to be executed in response to a client-side action, such as form submission.
 
-`createRoute` is used to define server routes, which are traditional REST API endpoints (`GET`, `POST`, `PUT`, `DELETE`). These endpoints are useful for creating traditional REST API endpoints that can be consumed by other services (i.e. API clients, webhooks, etc).
+`createRoute` is used to define server routes, which are traditional REST API endpoints (`GET`, `POST`, `PUT`, `DELETE`). These are useful for creating APIs that can be consumed by external services, such as API clients or webhooks.

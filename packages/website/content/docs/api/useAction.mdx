@@ -2,37 +2,104 @@
 title: useAction
 ---
 
-The `useAction` hook is a powerful utility for handling asynchronous actions in React applications. It provides a convenient way to manage loading states, errors, and data fetching while executing API calls or other asynchronous operations.
+import { AutoTypeTable } from 'fumadocs-typescript/ui';
 
-## Usage
+The `useAction` hook is a powerful utility for handling asynchronous actions in React applications. It provides a convenient way to manage loading states, errors, and data responses while executing actions defined with `createAction`.
 
-<Tabs items={['Greeting.tsx', 'action.ts']}>
+## Form Usage
+
+<Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
 
     ```tsx
     import { useAction } from '@vergestack/api-react';
+    import { greetingAction } from './actions';
 
-    function Greeting() {
-      const { data, errors, execute } = useAction(greetAction);
-      const [name, setName] = useState('');
+    export function GreetingComponent() {
+      const { data, errors, executeForm } = useAction(greetAction);
 
-      return <div>
-        <input name="name" value={name} onChange={(e) => setName(e.target.value)} />
-        <button type="submit" onClick={() => execute(name)}>Greet</button>
-        {data && <p>{data}</p>}
-        {errors && <p>{errors[0]?.message}</p>}
-      </div>
+      return (
+        <>
+          <form action={executeForm}>
+            <input name="name" />
+            <button type="submit">Greet</button>
+          </form>
+
+          {data && <p>Data: {data}</p>}
+          {errors && <p>Errors: {errors.join(', ')}</p>}
+        </>
+      );
     }
     ```
 
   </Tab>
-  <Tab value="action.ts">
+  <Tab value="actions.ts">
   
     ```ts
+    'use server';
+
     import { createAction } from '@vergestack/api';
     import { z } from 'zod';
 
-    export const greetAction = createAction()
+    export const greetingAction = createAction()
+      .input(
+        z.object({
+          name: z.string()
+        })
+      )
+      .output(z.string())
+      .handler(async ({ name }) => {
+        return `Hello, ${name}!`;
+      });
+    ```
+
+  </Tab>
+</Tabs>
+
+<Callout title="Note">
+  When working with a form, you should always use the `executeForm` helper
+  unless you have a special use case.
+</Callout>
+
+## Direct Usage
+
+<Tabs items={['Greeting.tsx', 'actions.ts']}>
+  <Tab value="Greeting.tsx">
+
+    ```tsx
+    import { useAction } from '@vergestack/api-react';
+    import { greetingAction } from './actions';
+
+    export function GreetingComponent() {
+      const { data, errors, execute } = useAction(greetAction);
+      const [name, setName] = useState('');
+
+      return (
+        <>
+          <input
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <button onClick={() => execute(name)}>Greet</button>
+
+          {data && <p>Data: {data}</p>}
+          {errors && <p>Errors: {errors.join(', ')}</p>}
+        </>
+      );
+    }
+    ```
+
+  </Tab>
+  <Tab value="actions.ts">
+  
+    ```ts
+    'use server';
+
+    import { createAction } from '@vergestack/api';
+    import { z } from 'zod';
+
+    export const greetingAction = createAction()
       .input(z.string())
       .output(z.string())
       .handler(async (name) => {
@@ -40,91 +107,62 @@ The `useAction` hook is a powerful utility for handling asynchronous actions in 
       });
     ```
 
-</Tab>
+  </Tab>
 </Tabs>
 
 ## Parameters
 
-- `action`: An action created using the `createAction` function from `@vergestack/api`.
+| Property | Type                     | Description                                                                 |
+| -------- | ------------------------ | --------------------------------------------------------------------------- |
+| `action` | `GeneratedActionHandler` | An action created using the `createAction` function from `@vergestack/api`. |
 
 ## Return Value
 
 The `useAction` hook returns an object with the following properties:
 
-- `loading`: A boolean indicating whether the asynchronous operation is in progress.
-- `errors`: An array of `ErrorMessage` objects if the asynchronous operation fails.
-- `data`: The data returned by the asynchronous operation (type `OutputType | null`).
-- `status`: The HTTP status code of the response (type `StatusCodes | null`).
-- `ok`: A boolean indicating if the status is `StatusCodes.OK`.
-- `execute`: A function to manually trigger the execution of the asynchronous operation.
-- `executeForm`: A function to execute the action with `FormData` input.
-- `getFormError`: A function to retrieve form-specific errors.
+| Property       | Description                                                                  |
+| -------------- | ---------------------------------------------------------------------------- |
+| `loading`      | A boolean indicating whether the asynchronous operation is in progress.      |
+| `errors`       | An array of stringified error messages if the asynchronous operation fails.  |
+| `data`         | The data returned by the asynchronous operation.                             |
+| `status`       | The HTTP status code of the response.                                        |
+| `ok`           | A boolean indicating if the status is `StatusCodes.OK`.                      |
+| `execute`      | A function to manually trigger the execution of the asynchronous operation.  |
+| `executeForm`  | A function to execute the action with `FormData` input.                      |
+| `getFormError` | A function to retrieve form-specific errors (useful for inline form errors). |
 
-## Detailed Usage
+## Types
 
-### Basic Execution
+### ApiResponse
 
-```tsx
-import { createAction } from '@vergestack/api';
-import { z } from 'zod';
-
-const fetchUserAction = createAction()
-  .input(z.object({ id: z.string() }))
-  .output(z.object({ name: z.string(), age: z.number() }))
-  .handler(async (input) => {
-    const response = await fetch(`https://api.example.com/user/${input.id}`);
-    return response.json();
-  });
-
-function UserComponent() {
-  const { data, loading, errors, execute } = useAction(fetchUserAction);
-
-  useEffect(() => {
-    execute({ id: 'user-123' });
-  }, [execute]);
-
-  // ... render component using data, loading, and errors
-}
+```ts
+type ApiResponse<T> = ApiResponseError | ApiResponseSuccess<T>;
 ```
 
-### Form Handling
+### ApiResponseSuccess
 
-```tsx
-import { createAction } from '@vergestack/api';
-import { z } from 'zod';
+<AutoTypeTable path="content/types.ts" name="ApiResponseSuccess" />
 
-const submitFormAction = createAction()
-  .input(z.object({ username: z.string(), password: z.string() }))
-  .output(z.object({ success: z.boolean() }))
-  .handler(async (input) => {
-    // Perform form submission logic here
-    return { success: true };
-  });
+### ApiResponseError
 
-function FormComponent() {
-  const { executeForm, getFormError } = useAction(submitFormAction);
+<AutoTypeTable path="content/types.ts" name="ApiResponseError" />
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    executeForm(formData);
-  };
+### ErrorMessage
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="username" />
-      {getFormError('username') && <span>{getFormError('username')}</span>}
-      <input name="password" type="password" />
-      {getFormError('password') && <span>{getFormError('password')}</span>}
-      <button type="submit">Submit</button>
-    </form>
-  );
-}
+<AutoTypeTable path="content/types.ts" name="ErrorMessage" />
+
+### ApiResponseErrorCodes
+
+```ts file="responses.ts"
+import { StatusCodes } from 'http-status-codes';
+
+type ApiResponseErrorCodes =
+  | StatusCodes.BAD_REQUEST
+  | StatusCodes.NOT_FOUND
+  | StatusCodes.FORBIDDEN
+  | StatusCodes.UNAUTHORIZED
+  | StatusCodes.INTERNAL_SERVER_ERROR;
 ```
-
-## Error Handling
-
-The hook automatically handles errors and provides them in the `errors` array. It also integrates with a global error handler through the `ApiContext`.
 
 ## Notes
 
@@ -135,5 +173,3 @@ The hook automatically handles errors and provides them in the `errors` array. I
 - The `ok` state is `true` when the status is `StatusCodes.OK`.
 - The `executeForm` function can be used to easily submit form data.
 - The `getFormError` function allows you to retrieve specific error messages for form fields.
-
-By using the `useAction` hook, you can manage asynchronous operations in a clean and organized manner, making your code more maintainable and easier to understand.

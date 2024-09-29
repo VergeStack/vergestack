@@ -12,13 +12,13 @@ export type ErrorMessage = {
   path?: string;
 };
 
-type ApiResponseError = {
+export type ApiResponseError = {
   status: ApiResponseErrorCodes;
   data?: never;
   errors: ErrorMessage[];
 };
 
-type ApiResponseSuccess<T> = {
+export type ApiResponseSuccess<T> = {
   status: StatusCodes.OK;
   data: T;
   errors?: never;

@@ -1,7 +1,8 @@
 import { ErrorMessage } from '@vergestack/api';
 import { createContext } from 'react';
+import { ApiContextType } from '../types';
 
-export const ApiContext = createContext({
+export const ApiContext = createContext<ApiContextType>({
   handlers: {
     onError: (err: ErrorMessage, supressed: boolean = false) => {
       if (supressed) return;

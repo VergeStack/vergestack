@@ -22,25 +22,23 @@ export const greetingAction = createAction()
   });
 ```
 
-Please ensure the file is annotated with the 'use server' directive. All exports within this file will be transformed into publicly facing endpoints. This action can be imported into any React application that supports server actions.
+<Callout title="React Directives" type="warn">
+Please ensure the file is annotated with the `'use server'` directive. All
+exports within this file will be transformed into publicly facing endpoints.
+These actions can be imported into any React application that supports server
+actions. Learn more [here](https://react.dev/reference/rsc/use-server).
+
+</Callout>
 
 ## API
 
-#### `createAction()`
-
-Creates a new action creator instance.
-
-#### `.input(schema: ZodType)`
-
-Defines the input schema for the action using a Zod schema.
-
-#### `.output(schema: ZodType)`
-
-Defines the output schema for the action using a Zod schema.
-
-#### `.handler(fn: (input: InputType) => Promise<OutputType>)`
-
-Defines the handler function for the action. This function receives the validated input and should return a promise that resolves to the output matching the defined output schema.
+| Function                                                  | Description                                                                                                                                                                         |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createAction()`                                          | Creates a new action creator instance.                                                                                                                                              |
+| `.input(schema: ZodType)`                                 | Defines the input schema for the action using a Zod schema.                                                                                                                         |
+| `.output(schema: ZodType)`                                | Defines the output schema for the action using a Zod schema.                                                                                                                        |
+| `.handler(fn: (input: InputType) => Promise<OutputType>)` | Defines the handler function for the action. This function receives the validated input and should return a promise that resolves to the output matching the defined output schema. |
+|                                                           |
 
 ## Detailed Example
 

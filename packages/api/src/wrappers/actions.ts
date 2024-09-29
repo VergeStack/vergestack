@@ -2,11 +2,15 @@ import { z, ZodType } from 'zod';
 import { ApiResponse } from '../types';
 import { ApiHandler, execute } from './common';
 
+export type GeneratedActionHandler<InputType, OutputType> = (
+  inputData: InputType
+) => Promise<ApiResponse<OutputType>>;
+
 export function wrapAction<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
   outputSchema: ZodType<OutputType>,
   fn: ApiHandler<InputType, OutputType>
-): (inputData: InputType) => Promise<ApiResponse<OutputType>> {
+): GeneratedActionHandler<InputType, OutputType> {
   return async function (
     inputData: InputType
   ): Promise<ApiResponse<OutputType>> {
@@ -47,7 +51,7 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
 
   handler(
     handlerFunc: ApiHandler<InputType, OutputType>
-  ): (inputData: InputType) => Promise<ApiResponse<OutputType>> {
+  ): GeneratedActionHandler<InputType, OutputType> {
     if (!this.inputSchema || !this.outputSchema) {
       throw new Error('Input and output schemas must be defined');
     }
