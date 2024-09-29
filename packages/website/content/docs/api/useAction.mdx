@@ -132,6 +132,8 @@ An error's path is determined by the zod schema or optionally explicitly defined
 
 ## Direct Usage
 
+The `useAction` hook can also be used directly with the `execute` function, allowing for more flexible control over when and how the action is triggered. This approach is useful when you need to perform additional logic or transformations before executing the action.
+
 <Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
 
@@ -178,6 +180,8 @@ An error's path is determined by the zod schema or optionally explicitly defined
 
   </Tab>
 </Tabs>
+
+In this example, the `execute` function is called directly when the button is clicked, passing the `name` state as an argument.
 
 ## Parameters
 
