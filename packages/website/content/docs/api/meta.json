@@ -10,7 +10,7 @@
     "createRoute",
     "customErrors",
     "---Client Features---",
-    "useAction",
+    "action-hook",
     "useRoute",
     "---Configuration---",
     "globalConfiguration",

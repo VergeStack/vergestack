@@ -18,7 +18,7 @@ The `useAction` hook can be used to handle form submissions. It provides an `exe
     import { greetingAction } from './actions';
 
     export function GreetingComponent() {
-      const { data, errors, executeForm } = useAction(greetAction);
+      const { data, errors, executeForm } = useAction(greetingAction);
 
       return (
         <>
@@ -77,7 +77,7 @@ An error's path is determined by the zod schema or optionally explicitly defined
     import { greetingAction } from './actions';
 
     export function GreetingComponent() {
-      const { executeForm, getFormError } = useAction(greetAction);
+      const { executeForm, getFormError } = useAction(greetingAction);
 
       return (
         <>
@@ -142,7 +142,7 @@ The `useAction` hook can also be used directly with the `execute` function, allo
     import { greetingAction } from './actions';
 
     export function GreetingComponent() {
-      const { data, errors, execute } = useAction(greetAction);
+      const { data, errors, execute } = useAction(greetingAction);
       const [name, setName] = useState('');
 
       return (
