@@ -4,16 +4,16 @@
   "pages": [
     "---Guides---",
     "index",
-    "gettingStarted",
+    "getting-started",
     "---Server Endpoints---",
-    "createAction",
-    "createRoute",
-    "customErrors",
+    "create-action",
+    "create-route",
+    "custom-errors",
     "---Client Features---",
     "action-hook",
-    "useRoute",
+    "use-route",
     "---Configuration---",
-    "globalConfiguration",
-    "localConfiguration"
+    "global-configuration",
+    "local-configuration"
   ]
 }
