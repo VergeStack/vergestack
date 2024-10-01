@@ -30,13 +30,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
     "@playwright/test": "^1.46.0",
     "@types/node": "^20.16.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
+    "rimraf": "^6.0.1",
     "typescript": "^5"
   }
 }
