@@ -1,5 +1,15 @@
 import { StatusCodes } from 'http-status-codes';
 
+export type ApiResponseSuccessCodes =
+  | StatusCodes.OK
+  | StatusCodes.CREATED
+  | StatusCodes.ACCEPTED
+  | StatusCodes.NON_AUTHORITATIVE_INFORMATION
+  | StatusCodes.NO_CONTENT
+  | StatusCodes.RESET_CONTENT
+  | StatusCodes.PARTIAL_CONTENT
+  | StatusCodes.MULTI_STATUS;
+
 export type ApiResponseErrorCodes =
   | StatusCodes.BAD_REQUEST
   | StatusCodes.NOT_FOUND
@@ -7,19 +17,21 @@ export type ApiResponseErrorCodes =
   | StatusCodes.UNAUTHORIZED
   | StatusCodes.INTERNAL_SERVER_ERROR;
 
-export type ErrorMessage = {
+export type ApiResponseStatus = ApiResponseSuccessCodes | ApiResponseErrorCodes;
+
+export type ApiError = {
   message: string;
-  path?: string;
+  reason?: string;
 };
 
 export type ApiResponseError = {
   status: ApiResponseErrorCodes;
   data?: never;
-  errors: ErrorMessage[];
+  errors: ApiError[];
 };
 
 export type ApiResponseSuccess<T> = {
-  status: StatusCodes.OK;
+  status: ApiResponseSuccessCodes;
   data: T;
   errors?: never;
 };

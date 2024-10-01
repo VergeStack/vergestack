@@ -1,6 +1,6 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { ZodType } from 'zod';
-import { ApiError, ApiResponse } from '../types';
+import { ApiResponse, GenericError } from '../types';
 
 export type ApiHandler<InputType, OutputType> = (
   input: InputType
@@ -18,7 +18,7 @@ export async function execute<InputType, OutputType>(
     return {
       errors: inputErrors.issues.map((issue) => ({
         message: issue.message,
-        path: issue.path.join('/')
+        reason: issue.path.join('/')
       })),
       status: StatusCodes.BAD_REQUEST
     };
@@ -31,13 +31,13 @@ export async function execute<InputType, OutputType>(
     const status = StatusCodes.OK;
     return { status, data: response };
   } catch (err) {
-    if (err instanceof ApiError) {
+    if (err instanceof GenericError) {
       return {
         status: err.status,
         errors: [
           {
             message: err.message,
-            path: err.path
+            reason: err.reason
           }
         ]
       };

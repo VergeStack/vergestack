@@ -1,15 +1,18 @@
-import { ErrorMessage } from '@vergestack/api';
 import { createContext } from 'react';
-import { ApiContextType } from '../types';
+import { ApiContextType, ApiErrorWithMetadata } from '../types';
 
 export const ApiContext = createContext<ApiContextType>({
   handlers: {
-    onError: (err: ErrorMessage, supressed: boolean = false) => {
-      if (supressed) return;
+    onError: (errors: ApiErrorWithMetadata[]) => {
+      for (const err of errors) {
+        if ('reason' in err && err.isReasonRegistered) continue;
 
-      const suffix = err.path ? ` at path ${err.path}` : '';
-      console.error(`${err.message}${suffix}`);
-    }
+        const suffix = 'reason' in err ? ` with reason: ${err.reason}` : '';
+        console.error(`${err.message}${suffix}`);
+      }
+    },
+    onSuccess: () => {},
+    onComplete: () => {}
   }
 });
 

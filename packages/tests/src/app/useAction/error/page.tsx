@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { errorAction } from './action';
 
 export default function Home() {
-  const { data, execute, loading, errors } = useAction(errorAction);
+  const { data, execute, isPending, errors } = useAction(errorAction);
   const [triggered, setTriggered] = useState(false);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <>
-      <p id="data">{loading ? 'Loading...' : data}</p>
+      <p id="data">{isPending ? 'Pending...' : data}</p>
       <p id="error">{JSON.stringify(errors)}</p>
       <p id="triggered">{`${triggered}`}</p>
     </>

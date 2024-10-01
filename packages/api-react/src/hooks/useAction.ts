@@ -1,58 +1,83 @@
-import { ApiResponse, ErrorMessage } from '@vergestack/api';
+import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ApiContext } from '../providers';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ApiErrorWithMetadata } from '../types';
+
+export type UseActionOptions<OutputType> = {
+  initialData?: OutputType;
+  onError?: (errors: ApiErrorWithMetadata[]) => void;
+  onSuccess?: (data: OutputType) => void;
+  onComplete?: () => void;
+};
+
+function isSuccessStatus(status: ApiResponseStatus): boolean {
+  return status >= 200 && status < 300;
+}
 
 export function useAction<InputType, OutputType>(
-  actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>
+  actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>,
+  optionsObject?: UseActionOptions<OutputType>
 ) {
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<ErrorMessage[]>([]);
-  const [supressedErrorPaths, setSupressedErrorPaths] = useState<Set<string>>(
-    new Set<string>()
+  const options = useRef(optionsObject);
+  options.current = optionsObject;
+
+  const [isPending, setIsPending] = useState(false);
+  const [errors, setErrors] = useState<ApiErrorWithMetadata[]>([]);
+  const registeredPathsRef = useRef<Set<string>>(new Set<string>());
+  const [data, setData] = useState<OutputType | undefined>(
+    options?.current?.initialData
   );
-  const [data, setData] = useState<OutputType | null>(null);
-  const [status, setStatus] = useState<StatusCodes | null>(null);
+  const [status, setStatus] = useState<ApiResponseStatus | undefined>();
 
   const execute = useCallback(
     async (inputData: InputType): Promise<void> => {
-      if (loading) return;
-      setLoading(true);
-      setStatus(null);
+      if (isPending) return;
+      setIsPending(true);
+
+      let newErrors: ApiErrorWithMetadata[] = [];
+      let newData: OutputType | undefined;
+      let newStatus: StatusCodes = StatusCodes.INTERNAL_SERVER_ERROR;
 
       try {
         const result = await actionHandler(inputData);
 
-        setErrors(result.errors ?? []);
-        setData(result.data ? result.data : null);
-        setStatus(result.status);
+        const newRawErrors = result.errors ?? [];
+
+        newErrors = newRawErrors.map((err: ApiError) => ({
+          ...err,
+          isReasonRegistered: err.reason
+            ? registeredPathsRef.current.has(err.reason)
+            : undefined
+        }));
+        newData = result.data;
+        newStatus = result.status;
       } catch (err) {
         console.error(err);
 
-        setErrors([{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]);
-        setData(null);
-        setStatus(StatusCodes.INTERNAL_SERVER_ERROR);
-      } finally {
-        setLoading(false);
+        newErrors = [
+          {
+            message: ReasonPhrases.INTERNAL_SERVER_ERROR
+          }
+        ];
+        newStatus = StatusCodes.INTERNAL_SERVER_ERROR;
       }
+
+      setErrors(newErrors);
+      setData(newData);
+      setStatus(newStatus);
+
+      if (isSuccessStatus(newStatus)) {
+        options?.current?.onSuccess?.(newData as OutputType);
+      } else {
+        options?.current?.onError?.(newErrors);
+      }
+
+      setIsPending(false);
+
+      options?.current?.onComplete?.();
     },
-    [actionHandler]
+    [actionHandler, options]
   );
-
-  const { handlers } = useContext(ApiContext);
-
-  useEffect(() => {
-    if (errors.length > 0) {
-      errors.forEach((err) => {
-        const supressed =
-          err.path !== undefined && supressedErrorPaths.has(err.path);
-
-        handlers.onError(err, supressed);
-      });
-    }
-  }, [errors, handlers]);
-
-  const ok = useMemo(() => status === StatusCodes.OK, [status]);
 
   const executeForm = useCallback(
     async (formData: FormData): Promise<void> => {
@@ -71,21 +96,32 @@ export function useAction<InputType, OutputType>(
 
   const getFormError = useCallback(
     (name: string): string | undefined => {
-      if (!supressedErrorPaths.has(name)) {
-        setSupressedErrorPaths(new Set([...supressedErrorPaths, name]));
+      if (!registeredPathsRef.current.has(name)) {
+        registeredPathsRef.current.add(name);
       }
 
-      return errors.find((err) => err.path === name)?.message;
+      return errors.find((err) => 'reason' in err && err.reason === name)
+        ?.message;
     },
-    [errors, supressedErrorPaths]
+    [errors]
+  );
+
+  const isSuccess = useMemo(
+    () => status !== undefined && isSuccessStatus(status),
+    [status]
+  );
+  const isError = useMemo(
+    () => status !== undefined && !isSuccessStatus(status),
+    [status]
   );
 
   return {
-    loading,
+    isPending,
+    isSuccess,
+    isError,
     errors,
     data,
     status,
-    ok,
     execute,
     executeForm,
     getFormError

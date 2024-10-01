@@ -45,7 +45,7 @@ describe('wrapRoute', () => {
 
     expect(responseBody).toEqual({
       status: StatusCodes.BAD_REQUEST,
-      errors: [{ message: 'Expected string, received number', path: 'name' }]
+      errors: [{ message: 'Expected string, received number', reason: 'name' }]
     });
     expect(statusCode).toEqual(StatusCodes.BAD_REQUEST);
   });

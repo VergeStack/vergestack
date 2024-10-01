@@ -35,7 +35,7 @@ describe('execute', () => {
     );
     expect(result).toEqual({
       status: StatusCodes.BAD_REQUEST,
-      errors: [{ message: 'Expected string, received number', path: 'name' }]
+      errors: [{ message: 'Expected string, received number', reason: 'name' }]
     });
   });
 
@@ -73,7 +73,7 @@ describe('execute', () => {
     });
     expect(result).toEqual({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
-      errors: [{ message: 'Internal error message', path: 'custom/path' }]
+      errors: [{ message: 'Internal error message', reason: 'custom/path' }]
     });
   });
 
@@ -86,7 +86,7 @@ describe('execute', () => {
     });
     expect(result).toEqual({
       status: StatusCodes.UNAUTHORIZED,
-      errors: [{ message: 'Unauthorized access message', path: 'auth/token' }]
+      errors: [{ message: 'Unauthorized access message', reason: 'auth/token' }]
     });
   });
 
@@ -100,7 +100,7 @@ describe('execute', () => {
     expect(result).toEqual({
       status: StatusCodes.FORBIDDEN,
       errors: [
-        { message: 'Access forbidden message', path: 'user/permissions' }
+        { message: 'Access forbidden message', reason: 'user/permissions' }
       ]
     });
   });
@@ -114,7 +114,7 @@ describe('execute', () => {
     });
     expect(result).toEqual({
       status: StatusCodes.NOT_FOUND,
-      errors: [{ message: 'Resource not found message', path: 'data/id' }]
+      errors: [{ message: 'Resource not found message', reason: 'data/id' }]
     });
   });
 });

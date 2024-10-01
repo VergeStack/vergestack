@@ -1,48 +1,54 @@
 import { StatusCodes } from 'http-status-codes';
 import { ApiResponseErrorCodes } from './responses';
 
-export abstract class ApiError extends Error {
+export abstract class GenericError extends Error {
   readonly status: ApiResponseErrorCodes = StatusCodes.INTERNAL_SERVER_ERROR;
-  readonly path?: string;
+  readonly reason?: string;
 
-  constructor(message: string, status: ApiResponseErrorCodes, path?: string) {
+  constructor(
+    name: string,
+    message: string,
+    status: ApiResponseErrorCodes,
+    reason?: string
+  ) {
     super(message);
+    this.name = name;
     this.status = status;
-    this.path = path;
+    this.reason = reason;
   }
 }
 
-export class UnauthorizedError extends ApiError {
-  constructor(message: string, path?: string) {
-    super(message, StatusCodes.UNAUTHORIZED, path);
-    this.name = 'UnauthorizedError';
+export class UnauthorizedError extends GenericError {
+  constructor(message: string, reason?: string) {
+    super('UnauthorizedError', message, StatusCodes.UNAUTHORIZED, reason);
   }
 }
 
-export class ForbiddenError extends ApiError {
-  constructor(message: string, path?: string) {
-    super(message, StatusCodes.FORBIDDEN, path);
-    this.name = 'ForbiddenError';
+export class ForbiddenError extends GenericError {
+  constructor(message: string, reason?: string) {
+    super('ForbiddenError', message, StatusCodes.FORBIDDEN, reason);
   }
 }
 
-export class BadRequestError extends ApiError {
-  constructor(message: string, path?: string) {
-    super(message, StatusCodes.BAD_REQUEST, path);
-    this.name = 'BadRequestError';
+export class BadRequestError extends GenericError {
+  constructor(message: string, reason?: string) {
+    super('BadRequestError', message, StatusCodes.BAD_REQUEST, reason);
   }
 }
 
-export class NotFoundError extends ApiError {
-  constructor(message: string, path?: string) {
-    super(message, StatusCodes.NOT_FOUND, path);
-    this.name = 'NotFoundError';
+export class NotFoundError extends GenericError {
+  constructor(message: string, reason?: string) {
+    super('NotFoundError', message, StatusCodes.NOT_FOUND, reason);
   }
 }
 
-export class VisibleInternalError extends ApiError {
-  constructor(message: string, path?: string) {
-    super(message, StatusCodes.INTERNAL_SERVER_ERROR, path);
-    this.name = 'InternalError';
+export class VisibleInternalError extends GenericError {
+  constructor(message: string, reason?: string) {
+    super(
+      'VisibleInternalError',
+      message,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      reason
+    );
   }
 }

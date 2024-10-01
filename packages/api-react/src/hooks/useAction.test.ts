@@ -1,6 +1,7 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { ApiResponse } from '@vergestack/api';
 import { StatusCodes } from 'http-status-codes';
+import { act } from 'react';
 import { useAction } from './useAction';
 
 describe('useAction', () => {
@@ -13,11 +14,12 @@ describe('useAction', () => {
   it('should initialize with default values', () => {
     const { result } = renderHook(() => useAction(mockActionHandler));
 
-    expect(result.current.loading).toBe(false);
+    expect(result.current.isPending).toBe(false);
+    expect(result.current.isSuccess).toBe(false);
+    expect(result.current.isError).toBe(false);
     expect(result.current.errors).toEqual([]);
-    expect(result.current.data).toBeNull();
-    expect(result.current.status).toBeNull();
-    expect(result.current.ok).toBe(false);
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.status).toBeUndefined();
   });
 
   it('should handle successful action execution', async () => {
@@ -27,48 +29,48 @@ describe('useAction', () => {
     };
     mockActionHandler.mockResolvedValue(successResponse);
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAction(mockActionHandler)
-    );
+    const { result } = renderHook(() => useAction(mockActionHandler));
 
     act(() => {
       result.current.execute({ test: 'data' });
     });
 
-    expect(result.current.loading).toBe(true);
+    expect(result.current.isPending).toBe(true);
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
 
-    expect(result.current.loading).toBe(false);
+    expect(result.current.isSuccess).toBe(true);
+    expect(result.current.isError).toBe(false);
     expect(result.current.data).toBe('Success');
     expect(result.current.status).toBe(StatusCodes.OK);
-    expect(result.current.ok).toBe(true);
     expect(result.current.errors).toEqual([]);
   });
 
   it('should handle action execution with errors', async () => {
     const errorResponse: ApiResponse<null> = {
       status: StatusCodes.BAD_REQUEST,
-      errors: [{ message: 'Invalid input', path: 'test' }]
+      errors: [{ message: 'Invalid input', reason: 'test' }]
     };
     mockActionHandler.mockResolvedValue(errorResponse);
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAction(mockActionHandler)
-    );
+    const { result } = renderHook(() => useAction(mockActionHandler));
 
     act(() => {
       result.current.execute({ test: 'data' });
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
 
-    expect(result.current.loading).toBe(false);
-    expect(result.current.data).toBeNull();
+    expect(result.current.isSuccess).toBe(false);
+    expect(result.current.isError).toBe(true);
+    expect(result.current.data).toBeUndefined();
     expect(result.current.status).toBe(StatusCodes.BAD_REQUEST);
-    expect(result.current.ok).toBe(false);
     expect(result.current.errors).toEqual([
-      { message: 'Invalid input', path: 'test' }
+      { message: 'Invalid input', reason: 'test', isReasonRegistered: false }
     ]);
   });
 
@@ -79,9 +81,7 @@ describe('useAction', () => {
     };
     mockActionHandler.mockResolvedValue(successResponse);
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAction(mockActionHandler)
-    );
+    const { result } = renderHook(() => useAction(mockActionHandler));
 
     const formData = new FormData();
     formData.append('name', 'John');
@@ -91,32 +91,37 @@ describe('useAction', () => {
       result.current.executeForm(formData);
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
 
     expect(mockActionHandler).toHaveBeenCalledWith({ name: 'John', age: '30' });
     expect(result.current.data).toBe('Form Success');
-    expect(result.current.ok).toBe(true);
+    expect(result.current.isSuccess).toBe(true);
+    expect(result.current.isError).toBe(false);
+    expect(result.current.errors).toEqual([]);
+    expect(result.current.status).toBe(StatusCodes.OK);
   });
 
   it('should handle getFormError correctly', async () => {
     const errorResponse: ApiResponse<null> = {
       status: StatusCodes.BAD_REQUEST,
       errors: [
-        { message: 'Name is required', path: 'name' },
-        { message: 'Age must be a number', path: 'age' }
+        { message: 'Name is required', reason: 'name' },
+        { message: 'Age must be a number', reason: 'age' }
       ]
     };
     mockActionHandler.mockResolvedValue(errorResponse);
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAction(mockActionHandler)
-    );
+    const { result } = renderHook(() => useAction(mockActionHandler));
 
     act(() => {
       result.current.execute({ name: '', age: 'invalid' });
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
 
     expect(result.current.getFormError('name')).toBe('Name is required');
     expect(result.current.getFormError('age')).toBe('Age must be a number');

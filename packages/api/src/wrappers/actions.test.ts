@@ -31,7 +31,7 @@ describe('wrapAction', () => {
     const result = await action({ name: 123 });
     expect(result).toEqual({
       status: StatusCodes.BAD_REQUEST,
-      errors: [{ message: 'Expected string, received number', path: 'name' }]
+      errors: [{ message: 'Expected string, received number', reason: 'name' }]
     });
   });
 

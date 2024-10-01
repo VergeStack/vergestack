@@ -6,7 +6,7 @@ test('useAction error', async ({ page }) => {
   // Wait for the action to be triggered
   await page.waitForSelector('p#triggered:has-text("true")');
 
-  // Wait for loading to finish
+  // Wait for pending state to finish
   await page.waitForSelector('p#data:empty', { state: 'attached' });
 
   const errorText = await page.textContent('p#error');

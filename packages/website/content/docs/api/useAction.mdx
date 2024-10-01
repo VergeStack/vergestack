@@ -4,7 +4,7 @@ title: useAction
 
 import { AutoTypeTable } from 'fumadocs-typescript/ui';
 
-The `useAction` hook is a powerful utility for handling asynchronous actions in React applications. It provides a convenient way to manage loading states, errors, and data responses while executing actions defined with `createAction`.
+The `useAction` hook is a powerful utility for handling asynchronous actions in React applications. It provides a convenient way to manage pending states, errors, and data responses while executing actions defined with `createAction`.
 
 ## Form Usage
 
@@ -193,16 +193,17 @@ In this example, the `execute` function is called directly when the button is cl
 
 The `useAction` hook returns an object with the following properties:
 
-| Property       | Description                                                                  |
-| -------------- | ---------------------------------------------------------------------------- |
-| `loading`      | A boolean indicating whether the asynchronous operation is in progress.      |
-| `errors`       | An array of stringified error messages if the asynchronous operation fails.  |
-| `data`         | The data returned by the asynchronous operation.                             |
-| `status`       | The HTTP status code of the response.                                        |
-| `ok`           | A boolean indicating if the status is `StatusCodes.OK`.                      |
-| `execute`      | A function to manually trigger the execution of the asynchronous operation.  |
-| `executeForm`  | A function to execute the action with `FormData` input.                      |
-| `getFormError` | A function to retrieve form-specific errors (useful for inline form errors). |
+| Property       | Description                                                                     |
+| -------------- | ------------------------------------------------------------------------------- |
+| `isPending`    | A boolean indicating whether the asynchronous operation is in progress.         |
+| `isSuccess`    | A boolean indicating whether the operation completed successfully.              |
+| `isError`      | A boolean indicating whether the operation resulted in an error.                |
+| `errors`       | An array of `ApiErrorWithMetadata` objects if the asynchronous operation fails. |
+| `data`         | The data returned by the asynchronous operation.                                |
+| `status`       | The HTTP status code of the response.                                           |
+| `execute`      | A function to manually trigger the execution of the asynchronous operation.     |
+| `executeForm`  | A function to execute the action with `FormData` input.                         |
+| `getFormError` | A function to retrieve form-specific errors (useful for inline form errors).    |
 
 ## Types
 
@@ -220,9 +221,9 @@ type ApiResponse<T> = ApiResponseError | ApiResponseSuccess<T>;
 
 <AutoTypeTable path="content/types.ts" name="ApiResponseError" />
 
-### ErrorMessage
+### ApiError
 
-<AutoTypeTable path="content/types.ts" name="ErrorMessage" />
+<AutoTypeTable path="content/types.ts" name="ApiError" />
 
 ### ApiResponseErrorCodes
 
@@ -236,13 +237,3 @@ type ApiResponseErrorCodes =
   | StatusCodes.UNAUTHORIZED
   | StatusCodes.INTERNAL_SERVER_ERROR;
 ```
-
-## Notes
-
-- The `execute` function can be called manually to start the asynchronous operation.
-- The `loading` state is `true` while the asynchronous operation is in progress.
-- The `errors` state contains an array of error messages if the asynchronous operation fails.
-- The `data` state is updated with the result of the asynchronous operation once it completes successfully.
-- The `ok` state is `true` when the status is `StatusCodes.OK`.
-- The `executeForm` function can be used to easily submit form data.
-- The `getFormError` function allows you to retrieve specific error messages for form fields.
