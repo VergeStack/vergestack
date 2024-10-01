@@ -1,3 +1,83 @@
 ---
 title: Local
 ---
+
+### Configuring the useAction Hook
+
+The `useAction` hook in `@vergestack/api-react` allows you to configure its behavior by passing an optional `options` object. This object can include callback functions for different stages of the action execution. These local options override the global configuration.
+
+## Available Options
+
+The `useAction` hook accepts an options object as its second argument with the following properties:
+
+- `onSuccess`: Called when the action is successful
+- `onError`: Called when the action encounters one or more errors
+- `onComplete`: Called after the action completes, regardless of success or failure
+- `initialData`: Sets the initial data state
+
+## Usage Example
+
+Here's an example of how to use the `useAction` hook with all available options:
+
+```typescript
+import { useAction } from '@vergestack/api-react';
+import { greetingAction } from './actions';
+
+function MyComponent() {
+  const { data, errors, execute } = useAction(greetingAction, {
+    initialData: 'Hello',
+    onSuccess: (data) => {
+      console.log('Action succeeded with data:', data);
+    },
+    onError: (errors) => {
+      console.error('Action failed with errors:', errors);
+    },
+    onComplete: () => {
+      console.log('Action completed');
+    }
+  });
+
+  // Rest of your component code
+}
+```
+
+## Callbacks
+
+### onSuccess
+
+The `onSuccess` callback is triggered when the action completes successfully. It receives the action's result data as its argument.
+
+```typescript
+onSuccess: (data: OutputType) => void
+```
+
+### onError
+
+The `onError` callback is triggered when the action encounters an error. It receives a list of error objects.
+
+```typescript
+onError: (errors: ApiErrorWithMetadata[]) => void
+```
+
+### onComplete
+
+The `onComplete` callback is executed after the action finishes, regardless of whether it succeeded or failed. It doesn't receive any arguments.
+
+```typescript
+onComplete: () => void
+```
+
+## Properties
+
+### initialData
+
+The `initialData` property sets the initial data state.
+
+```typescript
+initialData: OutputType;
+```
+
+## Notes
+
+- The callbacks are executed in addition to the hook's built-in state updates. For example, `onSuccess` is called after the `data` state has been updated with the action's result.
+- Use these callbacks for side effects like logging, analytics, or triggering other parts of your application flow.
