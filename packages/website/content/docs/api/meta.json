@@ -12,7 +12,6 @@
     "---Client Features---",
     "action-hook",
     "use-route",
-    "---Configuration---",
     "global-configuration",
     "local-configuration"
   ]
