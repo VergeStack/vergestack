@@ -1,6 +1,7 @@
 import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
 
 export type UseActionOptions<OutputType> = {
@@ -14,18 +15,37 @@ function isSuccessStatus(status: ApiResponseStatus): boolean {
   return status >= 200 && status < 300;
 }
 
+function defaultOnError(errors: ApiErrorWithMetadata[]) {
+  for (const err of errors) {
+    if ('reason' in err) {
+      const message = `${err.message} with reason: ${err.reason}`;
+
+      if (err.isReasonRegistered) {
+        console.info(message);
+      } else {
+        console.error(message);
+      }
+
+      return;
+    }
+
+    console.error(err.message);
+  }
+}
+
 export function useAction<InputType, OutputType>(
   actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>,
   optionsObject?: UseActionOptions<OutputType>
 ) {
-  const options = useRef(optionsObject);
-  options.current = optionsObject;
+  const localOptions = useRef(optionsObject);
+  localOptions.current = optionsObject;
+  const globalOptions = useContext(ApiContext);
 
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<ApiErrorWithMetadata[]>([]);
   const registeredPathsRef = useRef<Set<string>>(new Set<string>());
   const [data, setData] = useState<OutputType | undefined>(
-    options?.current?.initialData
+    localOptions.current?.initialData
   );
   const [status, setStatus] = useState<ApiResponseStatus | undefined>();
 
@@ -66,17 +86,33 @@ export function useAction<InputType, OutputType>(
       setData(newData);
       setStatus(newStatus);
 
-      if (isSuccessStatus(newStatus)) {
-        options?.current?.onSuccess?.(newData as OutputType);
-      } else {
-        options?.current?.onError?.(newErrors);
+      try {
+        if (isSuccessStatus(newStatus)) {
+          if (localOptions.current?.onSuccess) {
+            localOptions.current.onSuccess(newData as OutputType);
+          } else if (globalOptions.options.onSuccess) {
+            globalOptions.options.onSuccess(newData as OutputType);
+          }
+        } else {
+          if (localOptions.current?.onError) {
+            localOptions.current.onError(newErrors);
+          } else if (globalOptions.options.onError) {
+            globalOptions.options.onError(newErrors);
+          } else {
+            defaultOnError(newErrors);
+          }
+        }
+      } finally {
+        setIsPending(false);
       }
 
-      setIsPending(false);
-
-      options?.current?.onComplete?.();
+      if (localOptions.current?.onComplete) {
+        localOptions.current.onComplete();
+      } else if (globalOptions.options.onComplete) {
+        globalOptions.options.onComplete();
+      }
     },
-    [actionHandler, options]
+    [actionHandler, localOptions, globalOptions]
   );
 
   const executeForm = useCallback(
