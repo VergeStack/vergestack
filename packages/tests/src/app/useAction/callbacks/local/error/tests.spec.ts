@@ -9,7 +9,7 @@ declare global {
 }
 
 test('useAction error', async ({ page }) => {
-  await page.goto('/useAction/callbacks/error');
+  await page.goto('/useAction/callbacks/local/error');
 
   // Wait for "No data" to appear
   await page.waitForSelector('p:has-text("No data")');
