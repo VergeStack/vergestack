@@ -1,3 +1,91 @@
 ---
 title: Global Configuration
 ---
+
+The `ApiProvider` from `@vergestack/api-react` allows you to set up global configuration options via React contexts. Local options passed to hooks take precedence over global options, allowing for fine-grained control when needed.
+
+## Available Options
+
+The `ApiProvider` accepts an options object with the following properties:
+
+- `onSuccess`: Called when an endpoint hook is successful
+- `onError`: Called when an endpoint hook encounters one or more errors
+- `onComplete`: Called after an endpoint hook completes, regardless of success or failure
+
+<Callout type="info">All callbacks are optional.</Callout>
+
+## Usage Example
+
+Here's an example of how to set up the `ApiProvider` with global configuration:
+
+```tsx
+import { ApiProvider, ApiErrorWithMetadata } from '@vergestack/api-react';
+
+function App() {
+  const globalOptions = {
+    onSuccess: (data: unknown) => {
+      console.log('Global success handler:', data);
+    },
+    onError: (errors: ApiErrorWithMetadata[]) => {
+      console.error('Global error handler:', errors);
+    },
+    onComplete: () => {
+      console.log('Global completion handler');
+    }
+  };
+
+  return (
+    <ApiProvider value={{ options: globalOptions }}>
+      {/* Your app components */}
+    </ApiProvider>
+  );
+}
+```
+
+## Callbacks
+
+### onSuccess
+
+The global `onSuccess` callback is triggered when any action completes successfully. It receives the action's result data as its argument.
+
+```typescript
+onSuccess: (data: unknown) => void
+```
+
+### onError
+
+The global `onError` callback is triggered when any action encounters an error. It receives a list of error objects.
+
+```typescript
+onError: (errors: ApiErrorWithMetadata[]) => void
+```
+
+### onComplete
+
+The global `onComplete` callback is executed after any action finishes, regardless of whether it succeeded or failed. It doesn't receive any arguments.
+
+```typescript
+onComplete: () => void
+```
+
+## Overriding Global Configuration
+
+The global configuration can be overridden by passing local options to individual `useAction` hooks. Local options take precedence over global options.
+
+```tsx
+import { useAction } from '@vergestack/api-react';
+import { greetingAction } from './actions';
+
+function MyComponent() {
+  const { data, errors, execute } = useAction(greetingAction, {
+    onSuccess: (data) => {
+      console.log('Local success handler:', data);
+    }
+    // This will override the global onSuccess handler for this specific useAction call
+  });
+
+  // Rest of your component code
+}
+```
+
+By using the `ApiProvider` with global configuration, you can set up default behavior for all actions in your application, while still maintaining the flexibility to customize behavior for specific cases using local configuration.
