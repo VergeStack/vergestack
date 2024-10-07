@@ -1,0 +1,47 @@
+---
+title: Error Classes
+---
+
+Custom error classes are available for throwing specific errors within your actions. These helpers provide more meaningful and standardized error responses across your application while following the familiar `throw new Error()` pattern.
+
+## Available Custom Errors
+
+The following custom error classes are available:
+
+| Error Class            | Code | Description                                                                    |
+| ---------------------- | ---- | ------------------------------------------------------------------------------ |
+| `UnauthorizedError`    | 401  | Used when authentication is required but not provided or is invalid.           |
+| `ForbiddenError`       | 403  | Used when the authenticated user doesn't have permission to access a resource. |
+| `BadRequestError`      | 400  | Used when the request is malformed or contains invalid data.                   |
+| `NotFoundError`        | 404  | Used when a requested resource is not found.                                   |
+| `VisibleInternalError` | 500  | Used for internal server errors that can be safely exposed to the client.      |
+
+<Callout type="info">
+  All other errors (including the native `Error`) are treated as internal server
+  errors and are **not** exposed to the client.
+</Callout>
+
+Each error class shares the same common behavior, differing only in the `status` property. This determines the specific HTTP status code returned in the error response.
+
+## Usage
+
+Here's an example of how to use the `UnauthorizedError` and `ForbiddenError` classes in an action:
+
+```typescript
+import { UnauthorizedError, ForbiddenError } from '@vergestack/api';
+
+export const authAction = createAction()
+  .input(z.void())
+  .output(z.void())
+  .handler(async () => {
+    if (!isUserAuthenticated()) {
+      throw new UnauthorizedError('User is not authenticated');
+    }
+
+    if (!userHasAccess()) {
+      throw new ForbiddenError('User does not have access');
+    }
+
+    // ... rest of the action logic
+  });
+```
