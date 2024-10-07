@@ -76,8 +76,3 @@ The `initialData` property sets the initial data state.
 ```typescript
 initialData: OutputType;
 ```
-
-## Notes
-
-- The callbacks are executed in addition to the hook's built-in state updates. For example, `onSuccess` is called after the `data` state has been updated with the action's result.
-- Use these callbacks for side effects like logging, analytics, or triggering other parts of your application flow.
