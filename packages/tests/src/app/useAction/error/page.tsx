@@ -1,8 +1,8 @@
 'use client';
 
+import { errorAction } from '@/app/actions';
 import { useAction } from '@vergestack/api-react';
 import { useEffect, useState } from 'react';
-import { errorAction } from './action';
 
 export default function Home() {
   const { data, execute, isPending, errors } = useAction(errorAction);

@@ -1,10 +1,10 @@
 'use client';
 
+import { errorAction } from '@/app/actions';
 import { useAction } from '@vergestack/api-react';
-import { successAction } from './action';
 
 export default function Home() {
-  const { data, execute, errors } = useAction(successAction, {
+  const { data, execute, errors } = useAction(errorAction, {
     onSuccess: (data) => {
       fetch('/log', {
         method: 'POST',

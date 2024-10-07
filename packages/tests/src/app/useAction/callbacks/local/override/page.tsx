@@ -1,7 +1,7 @@
 'use client';
 
+import { successAction } from '@/app/actions';
 import { ApiProvider, useAction } from '@vergestack/api-react';
-import { successAction } from '../../global/success/action';
 
 export default function Home() {
   return (
