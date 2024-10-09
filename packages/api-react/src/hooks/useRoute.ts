@@ -1,20 +1,23 @@
 import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { z } from 'zod';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
 import { defaultOnError, isSuccessStatus } from '../utils';
 
-export type UseActionOptions<OutputType> = {
+export type UseRouteOptions<InputType, OutputType> = {
   initialData?: OutputType;
   onError?: (errors: ApiErrorWithMetadata[]) => void;
   onSuccess?: (data: OutputType) => void;
   onComplete?: () => void;
+  inputSchema?: z.ZodType<InputType>;
+  outputSchema?: z.ZodType<OutputType>;
 };
 
-export function useAction<InputType, OutputType>(
-  actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>,
-  optionsObject?: UseActionOptions<OutputType>
+export function useRoute<InputType = unknown, OutputType = unknown>(
+  endpoint: string,
+  optionsObject?: UseRouteOptions<InputType, OutputType>
 ) {
   const localOptions = useRef(optionsObject);
   localOptions.current = optionsObject;
@@ -38,24 +41,45 @@ export function useAction<InputType, OutputType>(
       let newStatus: StatusCodes = StatusCodes.INTERNAL_SERVER_ERROR;
 
       try {
-        const result = await actionHandler(inputData);
+        // Validate input data if schema is provided
+        const validatedInput = localOptions.current?.inputSchema
+          ? localOptions.current.inputSchema.parse(inputData)
+          : inputData;
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(validatedInput)
+        });
+
+        const result: ApiResponse<unknown> = await response.json();
+
+        // Validate output data if schema is provided
+        const validatedOutput = localOptions.current?.outputSchema
+          ? localOptions.current.outputSchema.parse(result.data)
+          : (result.data as OutputType);
+
+        newData = validatedOutput;
+        newStatus = result.status;
 
         const newRawErrors = result.errors ?? [];
-
         newErrors = newRawErrors.map((err: ApiError) => ({
           ...err,
           isReasonRegistered: err.reason
             ? registeredPathsRef.current.has(err.reason)
             : undefined
         }));
-        newData = result.data;
-        newStatus = result.status;
       } catch (err) {
         console.error(err);
 
         newErrors = [
           {
-            message: ReasonPhrases.INTERNAL_SERVER_ERROR
+            message:
+              err instanceof Error
+                ? err.message
+                : ReasonPhrases.INTERNAL_SERVER_ERROR
           }
         ];
         newStatus = StatusCodes.INTERNAL_SERVER_ERROR;
@@ -91,7 +115,7 @@ export function useAction<InputType, OutputType>(
         globalOptions.options.onComplete();
       }
     },
-    [actionHandler, localOptions, globalOptions]
+    [endpoint, localOptions, globalOptions]
   );
 
   const executeForm = useCallback(
