@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z, ZodType } from 'zod';
-import { ApiResponse } from '../types';
+import { ApiError } from '../types';
 import { execute } from './common';
+
+type ApiResponseOrErrors<OutputType> = NextResponse<OutputType | ApiError[]>;
 
 export function wrapRoute<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
   outputSchema: ZodType<OutputType>,
   fn: (body: InputType) => Promise<OutputType>
-): (request: NextRequest) => Promise<NextResponse<ApiResponse<OutputType>>> {
+): (request: NextRequest) => Promise<ApiResponseOrErrors<OutputType>> {
   return async function (
     request: NextRequest
-  ): Promise<NextResponse<ApiResponse<OutputType>>> {
+  ): Promise<ApiResponseOrErrors<OutputType>> {
     const inputData = await request.json();
-    const apiResponse = await execute(inputSchema, outputSchema, fn, inputData);
-    return NextResponse.json(apiResponse, { status: apiResponse.status });
+    const { errors, data, status } = await execute(
+      inputSchema,
+      outputSchema,
+      fn,
+      inputData
+    );
+    if (errors) {
+      return NextResponse.json(errors, { status });
+    }
+    return NextResponse.json(data, { status });
   };
 }
 
@@ -50,7 +60,7 @@ class RouteCreator<InputType = unknown, OutputType = unknown> {
 
   handler(
     handlerFunc: (input: InputType) => Promise<OutputType>
-  ): (request: NextRequest) => Promise<NextResponse<ApiResponse<OutputType>>> {
+  ): (request: NextRequest) => Promise<ApiResponseOrErrors<OutputType>> {
     if (!this.inputSchema || !this.outputSchema) {
       throw new Error('Input and output schemas must be defined');
     }
