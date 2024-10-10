@@ -91,7 +91,7 @@ export function useAction<InputType, OutputType>(
         globalOptions.options.onComplete();
       }
     },
-    [actionHandler, localOptions, globalOptions]
+    [actionHandler, localOptions, globalOptions, isPending, registeredPathsRef]
   );
 
   const executeForm = useCallback(
