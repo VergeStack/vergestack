@@ -36,52 +36,59 @@ export function useAction<InputType, OutputType>(
 
   const execute = useCallback(
     async (inputData: InputType): Promise<void> => {
-      if (isPending) return;
-      setIsPending(true);
+      async function triggerAction() {
+        let newState: ActionState<OutputType> = {
+          data: undefined,
+          status: StatusCodes.INTERNAL_SERVER_ERROR,
+          errors: []
+        };
 
-      let newState: ActionState<OutputType> = {
-        data: undefined,
-        status: StatusCodes.INTERNAL_SERVER_ERROR,
-        errors: []
-      };
+        const result = await actionHandler(inputData);
 
-      const result = await actionHandler(inputData);
+        const newRawErrors = result.errors ?? [];
 
-      const newRawErrors = result.errors ?? [];
+        newState = {
+          data: result.data,
+          status: result.status,
+          errors: newRawErrors.map((err: ApiError) => ({
+            ...err,
+            isReasonRegistered: err.reason
+              ? registeredPathsRef.current.has(err.reason)
+              : undefined
+          }))
+        };
 
-      newState = {
-        data: result.data,
-        status: result.status,
-        errors: newRawErrors.map((err: ApiError) => ({
-          ...err,
-          isReasonRegistered: err.reason
-            ? registeredPathsRef.current.has(err.reason)
-            : undefined
-        }))
-      };
+        setState(newState);
 
-      setState(newState);
+        const options = {
+          ...globalOptions.options,
+          ...localOptions.current
+        };
 
-      const options = {
-        ...globalOptions.options,
-        ...localOptions.current
-      };
-
-      try {
-        if (newState.status && isSuccessStatus(newState.status)) {
-          options.onSuccess?.(newState.data as OutputType);
-        } else {
-          if (options.onError) {
-            options.onError(newState.errors);
+        try {
+          if (newState.status && isSuccessStatus(newState.status)) {
+            options.onSuccess?.(newState.data as OutputType);
           } else {
-            defaultOnError(newState.errors);
+            if (options.onError) {
+              options.onError(newState.errors);
+            } else {
+              defaultOnError(newState.errors);
+            }
           }
+        } finally {
+          setIsPending(false);
         }
-      } finally {
-        setIsPending(false);
+
+        options.onComplete?.();
       }
 
-      options.onComplete?.();
+      setIsPending((currentIsPending) => {
+        if (currentIsPending) return true;
+
+        triggerAction();
+
+        return true;
+      });
     },
     [actionHandler, localOptions, globalOptions, registeredPathsRef]
   );
