@@ -1,5 +1,5 @@
 import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
-import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
@@ -12,6 +12,12 @@ export type UseActionOptions<OutputType> = {
   onComplete?: () => void;
 };
 
+type ActionState<OutputType> = {
+  data: OutputType | undefined;
+  status: ApiResponseStatus | undefined;
+  errors: ApiErrorWithMetadata[];
+};
+
 export function useAction<InputType, OutputType>(
   actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>,
   optionsObject?: UseActionOptions<OutputType>
@@ -21,77 +27,63 @@ export function useAction<InputType, OutputType>(
   const globalOptions = useContext(ApiContext);
 
   const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<ApiErrorWithMetadata[]>([]);
   const registeredPathsRef = useRef<Set<string>>(new Set<string>());
-  const [data, setData] = useState<OutputType | undefined>(
-    localOptions.current?.initialData
-  );
-  const [status, setStatus] = useState<ApiResponseStatus | undefined>();
+  const [state, setState] = useState<ActionState<OutputType>>({
+    data: localOptions.current?.initialData,
+    status: undefined,
+    errors: []
+  });
 
   const execute = useCallback(
     async (inputData: InputType): Promise<void> => {
       if (isPending) return;
       setIsPending(true);
 
-      let newErrors: ApiErrorWithMetadata[] = [];
-      let newData: OutputType | undefined;
-      let newStatus: StatusCodes = StatusCodes.INTERNAL_SERVER_ERROR;
+      let newState: ActionState<OutputType> = {
+        data: undefined,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        errors: []
+      };
 
-      try {
-        const result = await actionHandler(inputData);
+      const result = await actionHandler(inputData);
 
-        const newRawErrors = result.errors ?? [];
+      const newRawErrors = result.errors ?? [];
 
-        newErrors = newRawErrors.map((err: ApiError) => ({
+      newState = {
+        data: result.data,
+        status: result.status,
+        errors: newRawErrors.map((err: ApiError) => ({
           ...err,
           isReasonRegistered: err.reason
             ? registeredPathsRef.current.has(err.reason)
             : undefined
-        }));
-        newData = result.data;
-        newStatus = result.status;
-      } catch (err) {
-        console.error(err);
+        }))
+      };
 
-        newErrors = [
-          {
-            message: ReasonPhrases.INTERNAL_SERVER_ERROR
-          }
-        ];
-        newStatus = StatusCodes.INTERNAL_SERVER_ERROR;
-      }
+      setState(newState);
 
-      setErrors(newErrors);
-      setData(newData);
-      setStatus(newStatus);
+      const options = {
+        ...globalOptions.options,
+        ...localOptions.current
+      };
 
       try {
-        if (isSuccessStatus(newStatus)) {
-          if (localOptions.current?.onSuccess) {
-            localOptions.current.onSuccess(newData as OutputType);
-          } else if (globalOptions.options.onSuccess) {
-            globalOptions.options.onSuccess(newData as OutputType);
-          }
+        if (newState.status && isSuccessStatus(newState.status)) {
+          options.onSuccess?.(newState.data as OutputType);
         } else {
-          if (localOptions.current?.onError) {
-            localOptions.current.onError(newErrors);
-          } else if (globalOptions.options.onError) {
-            globalOptions.options.onError(newErrors);
+          if (options.onError) {
+            options.onError(newState.errors);
           } else {
-            defaultOnError(newErrors);
+            defaultOnError(newState.errors);
           }
         }
       } finally {
         setIsPending(false);
       }
 
-      if (localOptions.current?.onComplete) {
-        localOptions.current.onComplete();
-      } else if (globalOptions.options.onComplete) {
-        globalOptions.options.onComplete();
-      }
+      options.onComplete?.();
     },
-    [actionHandler, localOptions, globalOptions, isPending, registeredPathsRef]
+    [actionHandler, localOptions, globalOptions, registeredPathsRef]
   );
 
   const executeForm = useCallback(
@@ -115,12 +107,13 @@ export function useAction<InputType, OutputType>(
         registeredPathsRef.current.add(name);
       }
 
-      return errors.find((err) => 'reason' in err && err.reason === name)
+      return state.errors.find((err) => 'reason' in err && err.reason === name)
         ?.message;
     },
-    [errors]
+    [state.errors]
   );
 
+  const { status } = state;
   const isSuccess = useMemo(
     () => status !== undefined && isSuccessStatus(status),
     [status]
@@ -131,12 +124,10 @@ export function useAction<InputType, OutputType>(
   );
 
   return {
+    ...state,
     isPending,
     isSuccess,
     isError,
-    errors,
-    data,
-    status,
     execute,
     executeForm,
     getFormError
