@@ -53,5 +53,6 @@ export default defineConfig({
     command: 'pnpm run start',
     port: 3000,
     reuseExistingServer: !isCI
-  }
+  },
+  timeout: 10000
 });
