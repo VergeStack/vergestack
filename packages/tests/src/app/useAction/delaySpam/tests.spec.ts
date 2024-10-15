@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 test('useAction delay spam', async ({ page }) => {
+  const callCount = 5;
+
   await page.goto('/useAction/delaySpam');
 
   // Initial state
@@ -17,7 +19,7 @@ test('useAction delay spam', async ({ page }) => {
   });
 
   // Click the button multiple times rapidly
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < callCount; i++) {
     await page.click('button');
     await page.waitForTimeout(100);
   }
@@ -26,7 +28,9 @@ test('useAction delay spam', async ({ page }) => {
   await expect(page.locator('p#data')).toHaveText('Pending...');
 
   // Check that the call count has increased
-  await expect(page.locator('p#callCount')).toHaveText('Call count: 5');
+  await expect(page.locator('p#callCount')).toHaveText(
+    `Call count: ${callCount}`
+  );
 
   // Wait for the action to complete
   await expect(page.locator('p#data')).toHaveText('Hello, world!', {
