@@ -25,11 +25,11 @@ test('useAction delay spam', async ({ page }) => {
     page.click('button')
   ]);
 
-  // Wait for the pending state
-  await expect(page.locator('p#data')).toHaveText('Pending...');
-
   // Check that the call count has increased
   await expect(page.locator('p#callCount')).toHaveText('Call count: 5');
+
+  // Wait for the pending state
+  await expect(page.locator('p#data')).toHaveText('Pending...');
 
   // Wait for the action to complete
   await expect(page.locator('p#data')).toHaveText('Hello, world!', {

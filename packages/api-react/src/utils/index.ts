@@ -10,11 +10,7 @@ export function defaultOnError(errors: ApiErrorWithMetadata[]) {
     if ('reason' in err) {
       const message = `${err.message} with reason: ${err.reason}`;
 
-      if (err.isReasonRegistered) {
-        console.info(message);
-      } else {
-        console.error(message);
-      }
+      console[err.isReasonRegistered ? 'info' : 'error'](message);
 
       return;
     }

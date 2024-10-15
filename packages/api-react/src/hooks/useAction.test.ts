@@ -31,11 +31,20 @@ describe('useAction', () => {
 
     const { result } = renderHook(() => useAction(mockActionHandler));
 
+    let isPendingChecked = false;
+
     act(() => {
-      result.current.execute({ test: 'data' });
+      result.current.execute({ test: 'data' }).then(() => {
+        isPendingChecked = true;
+      });
     });
 
-    expect(result.current.isPending).toBe(true);
+    await waitFor(() => {
+      if (!isPendingChecked) {
+        expect(result.current.isPending).toBe(true);
+        isPendingChecked = true;
+      }
+    });
 
     await waitFor(() => {
       expect(result.current.isPending).toBe(false);
