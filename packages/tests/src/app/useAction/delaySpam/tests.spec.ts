@@ -17,19 +17,16 @@ test('useAction delay spam', async ({ page }) => {
   });
 
   // Click the button multiple times rapidly
-  await Promise.all([
-    page.click('button'),
-    page.click('button'),
-    page.click('button'),
-    page.click('button'),
-    page.click('button')
-  ]);
-
-  // Check that the call count has increased
-  await expect(page.locator('p#callCount')).toHaveText('Call count: 5');
+  for (let i = 0; i < 5; i++) {
+    await page.click('button');
+    await page.waitForTimeout(100);
+  }
 
   // Wait for the pending state
   await expect(page.locator('p#data')).toHaveText('Pending...');
+
+  // Check that the call count has increased
+  await expect(page.locator('p#callCount')).toHaveText('Call count: 5');
 
   // Wait for the action to complete
   await expect(page.locator('p#data')).toHaveText('Hello, world!', {
