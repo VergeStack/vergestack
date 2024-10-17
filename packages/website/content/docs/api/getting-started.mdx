@@ -3,10 +3,127 @@ title: Getting Started
 icon: Album
 ---
 
-### Getting Started
+This guide will walk you through the process of setting up and using VergeStack API in your project. We'll cover installation, creating actions, using hooks, creating routes, and configuring options.
+
+## Installation
 
 To get started with VergeStack API, install the package and its dependencies. Ensure you have the following installed in your project:
 
 ```package-install
 npm install @vergestack/api @vergestack/api-react zod
 ```
+
+## Creating Your First Action
+
+Actions in VergeStack API are server-side functions with built-in input validation and type safety. They serve as a bridge between your client-side React components and server-side logic. Here's how to create a simple greeting action:
+
+```typescript title="actions.ts"
+'use server';
+
+import { createAction } from '@vergestack/api';
+import { z } from 'zod';
+
+export const greetingAction = createAction()
+  .input(z.object({ name: z.string() }))
+  .output(z.string())
+  .handler(async ({ name }) => {
+    return `Hello, ${name}!`;
+  });
+```
+
+For more details on creating actions, refer to the [Create Action](/docs/api/create-action) documentation.
+
+## Using the Action with a Hook
+
+Now that we have an action, let's use it in a React component with the `useAction` hook:
+
+```tsx title="GreetingComponent.tsx"
+import { useAction } from '@vergestack/api-react';
+import { greetingAction } from './actions';
+
+export function GreetingComponent() {
+  const { data, errors, executeForm } = useAction(greetingAction);
+
+  return (
+    <>
+      <form action={executeForm}>
+        <input name="name" />
+        <button type="submit">Greet</button>
+      </form>
+
+      {data && <p>Greeting: {data}</p>}
+      {errors && <p>Errors: {errors.map((e) => e.message).join(', ')}</p>}
+    </>
+  );
+}
+```
+
+For more information on using the `useAction` hook, check out the [Action Hook](/docs/api/action-hook) documentation.
+
+## Creating Your First Route
+
+Routes are used for handling traditional HTTP requests in a Next.js application. Here's an example of creating a simple route:
+
+```typescript title="api/greeting.ts"
+import { createRoute } from '@vergestack/api';
+import { z } from 'zod';
+
+export const GET = createRoute()
+  .input(z.object({ name: z.string() }))
+  .output(z.object({ greeting: z.string() }))
+  .handler(async (input) => {
+    return { greeting: `Hello, ${input.name}!` };
+  });
+```
+
+For more details on creating routes, refer to the [Create Route](/docs/api/create-route) documentation.
+
+## Configuring Options
+
+VergeStack API allows you to configure options both locally and globally.
+
+### Local Configuration
+
+You can pass options directly to the `useAction` hook:
+
+```tsx
+const { data, errors, execute } = useAction(greetingAction, {
+  onSuccess: (data) => {
+    console.log('Action succeeded:', data);
+  },
+  onError: (errors) => {
+    console.error('Action failed:', errors);
+  }
+});
+```
+
+### Global Configuration
+
+For global configuration, use the `ApiProvider` component at the root level:
+
+```tsx title="App.tsx"
+import { ApiProvider } from '@vergestack/api-react';
+
+function App() {
+  const globalOptions = {
+    onSuccess: (data) => {
+      console.log('Global success handler:', data);
+    },
+    onError: (errors) => {
+      console.error('Global error handler:', errors);
+    }
+  };
+
+  return (
+    <ApiProvider value={{ options: globalOptions }}>
+      {/* Your app components */}
+    </ApiProvider>
+  );
+}
+```
+
+For more information on configuration options, see the [Global Configuration](/docs/api/global-configuration) documentation.
+
+## Next Steps
+
+Now that you've set up VergeStack API and created your first action and route, you're ready to build more complex features. Explore the rest of the documentation to learn about advanced usage, error handling, and best practices.
