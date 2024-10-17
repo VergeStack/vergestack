@@ -8,6 +8,12 @@ export default function Home() {
     <ApiProvider
       value={{
         options: {
+          onStart: () => {
+            fetch('/log', {
+              method: 'POST',
+              body: JSON.stringify({ type: 'globalOnStart' })
+            });
+          },
           onSuccess: (data) => {
             fetch('/log', {
               method: 'POST',
@@ -36,6 +42,12 @@ export default function Home() {
 
 function LocalOverrideComponent() {
   const { data, execute, errors } = useAction(successAction, {
+    onStart: () => {
+      fetch('/log', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'localOnStart' })
+      });
+    },
     onSuccess: (data) => {
       fetch('/log', {
         method: 'POST',

@@ -29,9 +29,15 @@ test('useAction local success overrides global', async ({ page }) => {
 
   await page.waitForSelector('p#data:has-text("Hello, world!")');
 
-  await page.waitForFunction(() => window.callbackLogs.length >= 2);
+  await page.waitForFunction(() => window.callbackLogs.length >= 3);
 
   const logs = await page.evaluate(() => window.callbackLogs);
+
+  const localOnStartLog = logs.find((log) => log.type === 'localOnStart');
+  expect(localOnStartLog).toBeTruthy();
+
+  const globalOnStartLog = logs.find((log) => log.type === 'globalOnStart');
+  expect(globalOnStartLog).toBeFalsy();
 
   const localOnSuccessLog = logs.find((log) => log.type === 'localOnSuccess');
   expect(localOnSuccessLog).toBeTruthy();
@@ -47,4 +53,12 @@ test('useAction local success overrides global', async ({ page }) => {
 
   const globalOnErrorLog = logs.find((log) => log.type === 'globalOnError');
   expect(globalOnErrorLog).toBeFalsy();
+
+  // Check the order of callbacks
+  const logOrder = logs.map((log) => log.type);
+  expect(logOrder).toEqual([
+    'localOnStart',
+    'localOnSuccess',
+    'globalOnComplete'
+  ]);
 });

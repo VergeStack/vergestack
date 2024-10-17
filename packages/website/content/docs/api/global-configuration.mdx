@@ -8,6 +8,7 @@ The `ApiProvider` from `@vergestack/api-react` allows you to set up global confi
 
 The `ApiProvider` accepts an options object with the following properties:
 
+- `onStart`: Called when an endpoint hook starts execution
 - `onSuccess`: Called when an endpoint hook is successful
 - `onError`: Called when an endpoint hook encounters one or more errors
 - `onComplete`: Called after an endpoint hook completes, regardless of success or failure
@@ -23,6 +24,9 @@ import { ApiProvider, ApiErrorWithMetadata } from '@vergestack/api-react';
 
 function App() {
   const globalOptions = {
+    onStart: () => {
+      console.log('Global start handler');
+    },
     onSuccess: (data: unknown) => {
       console.log('Global success handler:', data);
     },
@@ -43,6 +47,14 @@ function App() {
 ```
 
 ## Callbacks
+
+### onStart
+
+The global `onStart` callback is triggered when any action starts execution. It doesn't receive any arguments.
+
+```typescript
+onStart: () => void
+```
 
 ### onSuccess
 

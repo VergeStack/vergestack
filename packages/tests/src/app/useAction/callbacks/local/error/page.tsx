@@ -5,6 +5,12 @@ import { useAction } from '@vergestack/api-react';
 
 export default function Home() {
   const { data, execute, errors } = useAction(errorAction, {
+    onStart: () => {
+      fetch('/log', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'onStart' })
+      });
+    },
     onSuccess: (data) => {
       fetch('/log', {
         method: 'POST',

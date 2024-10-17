@@ -8,6 +8,12 @@ export default function Home() {
     <ApiProvider
       value={{
         options: {
+          onStart: () => {
+            fetch('/log', {
+              method: 'POST',
+              body: JSON.stringify({ type: 'onStart' })
+            });
+          },
           onSuccess: (data) => {
             fetch('/log', {
               method: 'POST',

@@ -29,9 +29,12 @@ test('useAction global success', async ({ page }) => {
 
   await page.waitForSelector('p#data:has-text("Hello, world!")');
 
-  await page.waitForFunction(() => window.callbackLogs.length >= 2);
+  await page.waitForFunction(() => window.callbackLogs.length >= 3);
 
   const logs = await page.evaluate(() => window.callbackLogs);
+
+  const onStartLog = logs.find((log) => log.type === 'onStart');
+  expect(onStartLog).toBeTruthy();
 
   const onSuccessLog = logs.find((log) => log.type === 'onSuccess');
   expect(onSuccessLog).toBeTruthy();
@@ -42,4 +45,8 @@ test('useAction global success', async ({ page }) => {
 
   const onErrorLog = logs.find((log) => log.type === 'onError');
   expect(onErrorLog).toBeFalsy();
+
+  // Check the order of callbacks
+  const logOrder = logs.map((log) => log.type);
+  expect(logOrder).toEqual(['onStart', 'onSuccess', 'onComplete']);
 });

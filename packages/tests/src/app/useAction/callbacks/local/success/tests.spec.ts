@@ -35,7 +35,7 @@ test('useAction success', async ({ page }) => {
   await page.waitForSelector('p#data:has-text("Hello, world!")');
 
   // Wait for logs to be populated
-  await page.waitForFunction(() => window.callbackLogs.length >= 2);
+  await page.waitForFunction(() => window.callbackLogs.length >= 3);
 
   // Retrieve and check the logs
   const logs = await page.evaluate(() => window.callbackLogs);
@@ -52,4 +52,8 @@ test('useAction success', async ({ page }) => {
   // Check that onError was not called
   const onErrorLog = logs.find((log) => log.type === 'onError');
   expect(onErrorLog).toBeFalsy();
+
+  // Check the order of callbacks
+  const logOrder = logs.map((log) => log.type);
+  expect(logOrder).toEqual(['onStart', 'onSuccess', 'onComplete']);
 });

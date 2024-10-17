@@ -7,6 +7,7 @@ import { defaultOnError, isSuccessStatus } from '../utils';
 
 export type UseActionOptions<OutputType> = {
   initialData?: OutputType;
+  onStart?: () => void;
   onError?: (errors: ApiErrorWithMetadata[]) => void;
   onSuccess?: (data: OutputType) => void;
   onComplete?: () => void;
@@ -38,6 +39,13 @@ export function useAction<InputType, OutputType>(
 
   const executeInternal = useCallback(
     async (inputData: InputType) => {
+      const options = {
+        ...globalOptions.options,
+        ...localOptions.current
+      };
+
+      options.onStart?.();
+
       let newState: ActionState<OutputType> = {
         data: undefined,
         status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -60,11 +68,6 @@ export function useAction<InputType, OutputType>(
       };
 
       setState(newState);
-
-      const options = {
-        ...globalOptions.options,
-        ...localOptions.current
-      };
 
       try {
         if (newState.status && isSuccessStatus(newState.status)) {

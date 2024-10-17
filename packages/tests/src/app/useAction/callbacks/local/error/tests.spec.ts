@@ -37,7 +37,7 @@ test('useAction error', async ({ page }) => {
   );
 
   // Wait for logs to be populated
-  await page.waitForFunction(() => window.callbackLogs.length >= 2);
+  await page.waitForFunction(() => window.callbackLogs.length >= 3);
 
   // Retrieve and check the logs
   const logs = await page.evaluate(() => window.callbackLogs);
@@ -60,4 +60,12 @@ test('useAction error', async ({ page }) => {
   // Check that onSuccess was not called
   const onSuccessLog = logs.find((log) => log.type === 'onSuccess');
   expect(onSuccessLog).toBeFalsy();
+
+  // Check if onStart callback was called
+  const onStartLog = logs.find((log) => log.type === 'onStart');
+  expect(onStartLog).toBeTruthy();
+
+  // Check the order of callbacks
+  const logOrder = logs.map((log) => log.type);
+  expect(logOrder).toEqual(['onStart', 'onError', 'onComplete']);
 });
