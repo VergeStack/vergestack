@@ -1,3 +1,103 @@
 ---
 title: Create Route
 ---
+
+The `createRoute` function is used for defining typesafe and runtime-validated API routes. It provides the ability to define input and output schemas in addition to the route handler. These routes are best suited for handling HTTP requests in a Next.js application.
+
+## Usage
+
+Here's an example of using `createRoute` to define an API route:
+
+```typescript title="api/greeting.ts"
+import { createRoute } from '@vergestack/api';
+import { z } from 'zod';
+
+export const GET = createRoute()
+  .input(z.object({ name: z.string() }))
+  .output(z.object({ greeting: z.string() }))
+  .handler(async (input) => {
+    return { greeting: `Hello, ${input.name}!` };
+  });
+```
+
+<Callout type="info">
+  This route can be used in a Next.js API route file. The `createRoute` function
+  returns a handler that can be directly exported as a route handler (GET, POST,
+  etc.) in Next.js.
+</Callout>
+
+## API
+
+| Function                                                  | Description                                                                                                                                                                        |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createRoute()`                                           | Creates a new route creator instance.                                                                                                                                              |
+| `.input(schema: ZodType)`                                 | Defines the input schema for the route using a Zod schema.                                                                                                                         |
+| `.output(schema: ZodType)`                                | Defines the output schema for the route using a Zod schema.                                                                                                                        |
+| `.handler(fn: (input: InputType) => Promise<OutputType>)` | Defines the handler function for the route. This function receives the validated input and should return a promise that resolves to the output matching the defined output schema. |
+
+## Detailed Example
+
+```typescript title="api/user.ts"
+import { createRoute } from '@vergestack/api';
+import { z } from 'zod';
+import { NextRequest } from 'next/server';
+
+export const POST = createRoute()
+  .input(
+    z.object({
+      username: z.string().min(3, 'Username must be at least 3 characters'),
+      password: z.string().min(8, 'Password must be at least 8 characters')
+    })
+  )
+  .output(
+    z.object({
+      id: z.number(),
+      username: z.string()
+    })
+  )
+  .handler(async (input) => {
+    // Interact with database here, this is just a mock response
+    return {
+      id: 1,
+      username: input.username
+    };
+  });
+```
+
+## Testing
+
+You can easily test routes by calling them directly from a testing framework of your choice. Here is an example using Jest:
+
+```typescript title="api/greeting.test.ts"
+import { GET } from './greeting';
+import { NextRequest } from 'next/server';
+import { StatusCodes } from 'http-status-codes';
+
+describe('GET /api/greeting', () => {
+  it('should return a greeting for a valid name', async () => {
+    const mockRequest = {
+      json: async () => ({ name: 'Alice' })
+    } as unknown as NextRequest;
+
+    const response = await GET(mockRequest);
+    const result = await response.json();
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(result).toEqual({ greeting: 'Hello, Alice!' });
+  });
+
+  it('should return an error for invalid input', async () => {
+    const mockRequest = {
+      json: async () => ({ name: 123 })
+    } as unknown as NextRequest;
+
+    const response = await GET(mockRequest);
+    const result = await response.json();
+
+    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    expect(result).toEqual([
+      { message: 'Expected string, received number', reason: 'name' }
+    ]);
+  });
+});
+```

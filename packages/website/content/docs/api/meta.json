@@ -8,7 +8,7 @@
     "---Server Endpoints---",
     "create-action",
     "create-route",
-    "error-classes",
+    "error-handling",
     "---Client Features---",
     "action-hook",
     "global-configuration",

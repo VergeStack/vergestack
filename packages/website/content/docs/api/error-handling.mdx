@@ -1,8 +1,8 @@
 ---
-title: Error Classes
+title: Error Handling
 ---
 
-Custom error classes are available for throwing specific errors within your actions. These helpers provide more meaningful and standardized error responses across your application while following the familiar `throw new Error()` pattern.
+Custom error classes are available for throwing specific errors within your actions or routes. These helpers provide more meaningful and standardized error responses across your application while following the familiar `throw new Error()` pattern.
 
 ## Available Custom Errors
 
@@ -25,7 +25,7 @@ Each error class shares the same common behavior, differing only in the `status`
 
 ## Usage
 
-Here's an example of how to use the `UnauthorizedError` and `ForbiddenError` classes in an action:
+Here's an example of how to use the `UnauthorizedError` and `ForbiddenError` classes in an action or route:
 
 ```typescript
 import { UnauthorizedError, ForbiddenError } from '@vergestack/api';
@@ -45,3 +45,36 @@ export const authAction = createAction()
     // ... rest of the action logic
   });
 ```
+
+## Built-in Error Handling
+
+The framework handles the following errors automatically:
+
+| Error Type               | Status Code                 |
+| ------------------------ | --------------------------- |
+| Input validation errors  | 400 `BAD_REQUEST`           |
+| Output validation errors | 500 `INTERNAL_SERVER_ERROR` |
+| Native errors            | 500 `INTERNAL_SERVER_ERROR` |
+
+<Tabs items={['action.ts', 'route.ts']}>
+  <Tab value="action.ts" label="action.ts">
+    ```typescript
+    export const errorAction = createAction()
+      .input(z.void())
+      .output(z.void())
+      .handler(async () => {
+        throw new Error('This is a native error');
+      });
+    ```
+  </Tab>
+  <Tab value="route.ts" label="route.ts">
+    ```typescript
+    export const POST = createRoute()
+      .input(z.void())
+      .output(z.void())
+      .handler(async () => {
+        throw new Error('This is a native error');
+      });
+    ```
+  </Tab>
+</Tabs>

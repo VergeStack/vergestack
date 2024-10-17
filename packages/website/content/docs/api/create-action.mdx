@@ -2,7 +2,7 @@
 title: Create Action
 ---
 
-The `createAction` function is used for defining actions typesafe and runtime validated actions. It provides the ability to define input and output schemas in addition to the action handler. Server actions are best suited for mutations originating from your own application.
+The `createAction` function is used for defining actions typesafe and runtime-validated actions. It provides the ability to define input and output schemas in addition to the action handler. Server actions are best suited for mutations originating from your own application.
 
 ## Usage
 
@@ -37,7 +37,6 @@ export const greetingAction = createAction()
 | `.input(schema: ZodType)`                                 | Defines the input schema for the action using a Zod schema.                                                                                                                         |
 | `.output(schema: ZodType)`                                | Defines the output schema for the action using a Zod schema.                                                                                                                        |
 | `.handler(fn: (input: InputType) => Promise<OutputType>)` | Defines the handler function for the action. This function receives the validated input and should return a promise that resolves to the output matching the defined output schema. |
-|                                                           |
 
 ## Detailed Example
 
