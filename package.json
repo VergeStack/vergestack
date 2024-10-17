@@ -16,7 +16,10 @@
     "prepublish": "pnpm i && pnpm run build && pnpm run test && pnpm run playwright",
     "changeset:change": "pnpm changeset",
     "changeset:version": "pnpm changeset version",
-    "changeset:publish": "pnpm run prepublish && pnpm changeset publish"
+    "changeset:publish": "pnpm run prepublish && pnpm changeset publish",
+    "website": "pnpm --filter website dev",
+    "website:build": "pnpm --filter website build",
+    "website:start": "pnpm --filter website start"
   },
   "keywords": [
     "vergestack",
