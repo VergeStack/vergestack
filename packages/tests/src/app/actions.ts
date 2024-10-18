@@ -24,3 +24,10 @@ export const errorAction = createAction()
   .handler(async () => {
     throw new Error('Hello, world!');
   });
+
+export const undefinedOutputAction = createAction()
+  .input(z.string())
+  .output(z.undefined())
+  .handler(async () => {
+    return undefined;
+  });
