@@ -6,12 +6,15 @@
     "index",
     "getting-started",
     "---Server Endpoints---",
-    "create-action",
-    "create-route",
-    "error-handling",
+    "server-create-action",
+    "server-create-route",
+    "server-error-handling",
     "---Client Features---",
-    "action-hook",
-    "global-configuration",
-    "local-configuration"
+    "client-overview",
+    "client-form-usage",
+    "client-advanced-usage",
+    "client-local-options",
+    "client-global-options",
+    "client-api-reference"
   ]
 }

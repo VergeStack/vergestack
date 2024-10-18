@@ -1,12 +1,12 @@
 ---
-title: Direct Usage
+title: Advanced
 ---
 
-While `useAction` is commonly used with forms, it can also be used directly for more flexible control over when and how actions are triggered. This approach is useful when you need to perform additional logic or transformations before executing the action.
+While `useAction` is commonly used with forms, there are advanced scenarios where you might need more flexible control over when and how actions are triggered. This approach is useful when you need to perform additional logic or transformations before executing the action.
 
-## Basic Direct Usage
+## Simple Example
 
-Here's an example of how to use `useAction` directly:
+Here's an example of how to use `useAction` with direct execution:
 
 <Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
@@ -57,12 +57,13 @@ Here's an example of how to use `useAction` directly:
 
 In this example, the `execute` function is called directly when the button is clicked, passing the `name` state as an argument.
 
-## Advanced Usage
+## Complex Example
 
-Direct usage allows for more complex scenarios, such as:
+Direct execution allows for more complex scenarios, such as:
 
 1. Performing data transformations before execution
 2. Conditional execution based on certain criteria
+3. Executing based on non-form based interactions, such as infinite scroll event triggers
 
 Here's an example that demonstrates some of these advanced use cases:
 
@@ -71,13 +72,11 @@ import { useAction } from '@vergestack/api-react';
 import { greetingAction } from './actions';
 import { useState } from 'react';
 
-export function AdvancedGreetingComponent() {
+export function ComplexGreetingComponent() {
   const { data, errors, execute, isPending } = useAction(greetingAction);
   const [name, setName] = useState('');
 
   const handleGreet = async () => {
-    if (isPending) return;
-
     // Data transformation
     const formattedName = name.trim().toLowerCase();
 
@@ -101,6 +100,6 @@ export function AdvancedGreetingComponent() {
 }
 ```
 
-This example demonstrates how direct usage allows for more complex logic, including data transformation and conditional execution.
+This example demonstrates how advanced usage allows for more complex logic, including data transformation and conditional execution.
 
-For more information on the available properties and methods, check out the [API Reference](./api-reference) page.
+For more information on the available properties and methods, check out the [API Reference](./client-api-reference) page.

@@ -4,15 +4,17 @@ title: API Reference
 
 import { AutoTypeTable } from 'fumadocs-typescript/ui';
 
+## useAction hook
+
 This page provides detailed information about the parameters, return values, and types for the `useAction` hook.
 
-## Parameters
+### Parameters
 
 | Property | Type                     | Description                                                                 |
 | -------- | ------------------------ | --------------------------------------------------------------------------- |
 | `action` | `GeneratedActionHandler` | An action created using the `createAction` function from `@vergestack/api`. |
 
-## Return Value
+### Return Value
 
 The `useAction` hook returns an object with the following properties:
 
@@ -33,7 +35,7 @@ The `useAction` hook returns an object with the following properties:
 ### ApiResponse
 
 ```ts
-type ApiResponse<T> = ApiResponseError | ApiResponseSuccess<T>;
+type ApiResponse<T> = ApiResponseSuccess<T> | ApiResponseError;
 ```
 
 ### ApiResponseSuccess
@@ -61,4 +63,4 @@ type ApiResponseErrorCodes =
   | StatusCodes.INTERNAL_SERVER_ERROR;
 ```
 
-For more information on how to use these types and properties, refer to the [Form Usage](./form-usage) and [Direct Usage](./direct-usage) guides.
+For more information on how to use these types and properties, refer to the [Form Usage](./client-form-usage) and [Advanced Usage](./client-advanced-usage) guides.
