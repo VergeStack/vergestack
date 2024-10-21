@@ -6,13 +6,13 @@ icon: House
 
 ### Overview
 
-VergeStack API provides utilities to define server actions and route handlers with end-to-end type safety. Server and client logic share type information, reducing the likelihood of runtime errors and improving overall code quality.
+VergeStack API provides utilities to define and consume server actions with end-to-end type safety. Server and client logic share type information, reducing the likelihood of runtime errors and improving overall code quality. In addition to server action support, VergeStack API offers first class support for defining traditional HTTP endpoints (Next.js routes).
 
 ### Features
 
 1. **Type Safety and Validation**: Define input and output schemas using `zod` for robust type checking.
 2. **Server-Side Helpers**: Easily create actions and routes with `createAction` and `createRoute` functions.
-3. **Client-Side Integration**: Interact with server-side logic using `useAction` and `useRoute` hooks in components.
+3. **Client-Side Integration**: Integrate the `useAction` hook to manage mutations within components.
 
 ### Defining Endpoints
 
@@ -84,10 +84,13 @@ Once you have defined a server action or route handler, you can call it from a c
   <Tab value="RouteComponent.tsx" label="RouteComponent.tsx">
 
     ```tsx
-    import { useRoute } from '@vergestack/api-react';
+    import { useQuery } from '@tanstack/react-query'
 
     export const RouteComponent = () => {
-      const { executeForm, data, error } = useRoute('path/to/route');
+      const { data, error } = useQuery({
+        queryKey: ['greeting'],
+        queryFn: () => fetch('path/to/route').then(res => res.json())
+      });
 
       return (
         <div>
