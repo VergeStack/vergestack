@@ -19,8 +19,8 @@ export function wrapAction<InputType, OutputType>(
 }
 
 class ActionCreator<InputType = unknown, OutputType = unknown> {
-  inputSchema?: ZodType<InputType>;
-  outputSchema?: ZodType<OutputType>;
+  inputSchema: ZodType<InputType>;
+  outputSchema: ZodType<OutputType>;
   handlerFunc?: ApiHandler<InputType, OutputType>;
 
   constructor() {
@@ -52,10 +52,6 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
   handler(
     handlerFunc: ApiHandler<InputType, OutputType>
   ): GeneratedActionHandler<InputType, OutputType> {
-    if (!this.inputSchema || !this.outputSchema) {
-      throw new Error('Input and output schemas must be defined');
-    }
-
     return wrapAction<InputType, OutputType>(
       this.inputSchema,
       this.outputSchema,
