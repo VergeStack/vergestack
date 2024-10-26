@@ -6,16 +6,16 @@ import { z } from 'zod';
 export const successAction = createAction()
   .input(z.string())
   .output(z.string())
-  .handler(async (name) => {
-    return `Hello, ${name}!`;
+  .handler(async ({ input }) => {
+    return `Hello, ${input}!`;
   });
 
 export const delayAction = createAction()
   .input(z.string())
   .output(z.string())
-  .handler(async (name) => {
+  .handler(async ({ input }) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return `Hello, ${name}!`;
+    return `Hello, ${input}!`;
   });
 
 export const errorAction = createAction()

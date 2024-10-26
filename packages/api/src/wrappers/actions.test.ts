@@ -7,11 +7,12 @@ import {
   VisibleInternalError
 } from '../types';
 import { createAction, wrapAction } from './actions';
+import { ApiHandler } from './common';
 
 describe('wrapAction', () => {
   const inputSchema = z.object({ name: z.string() });
   const outputSchema = z.object({ greeting: z.string() });
-  const greetingFunction = async (input: { name: string }) => {
+  const greetingFunction = async ({ input }: { input: { name: string } }) => {
     return { greeting: `Hello, ${input.name}!` };
   };
 
@@ -40,9 +41,10 @@ describe('wrapAction', () => {
     const action = wrapAction(
       inputSchema,
       outputSchema,
-      invalidFunction as unknown as (input: {
-        name: string;
-      }) => Promise<{ greeting: string }>
+      invalidFunction as unknown as ApiHandler<
+        { name: string },
+        { greeting: string }
+      >
     );
 
     const result = await action({ name: 'Bob' });
@@ -58,8 +60,8 @@ describe('createAction', () => {
     const greetingAction = createAction()
       .input(z.string())
       .output(z.string())
-      .handler(async (name) => {
-        return `Hello, ${name}!`;
+      .handler(async ({ input }) => {
+        return `Hello, ${input}!`;
       });
 
     const result = await greetingAction('World');

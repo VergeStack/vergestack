@@ -47,8 +47,8 @@ Here's an example of how to use `useAction` with direct execution:
     export const greetingAction = createAction()
       .input(z.string())
       .output(z.string())
-      .handler(async (name) => {
-        return `Hello, ${name}!`;
+      .handler(async ({ input }) => {
+        return `Hello, ${input}!`;
       });
     ```
 

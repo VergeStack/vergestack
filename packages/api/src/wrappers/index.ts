@@ -1,3 +1,3 @@
 export * from './actions';
-export * from './common';
+export type * from './common';
 export * from './routes';

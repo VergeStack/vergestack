@@ -30,7 +30,7 @@ Server actions and routes in VergeStack are defined using the `createAction` and
     export const greetingAction = createAction()
       .input(z.string())
       .output(z.string())
-      .handler(async (input) => {
+      .handler(async ({ input }) => {
         return `Hello, ${input}!`;
       });
     ```
@@ -45,8 +45,8 @@ Server actions and routes in VergeStack are defined using the `createAction` and
     export const POST = createRoute()
       .input(z.string())
       .output(z.string())
-      .handler(async (input, { ctx }) => {
-        return `Hello from ${ctx.req.url}, ${input}!`;
+      .handler(async ({ input, request }) => {
+        return `Hello from ${request.nextUrl.pathname}, ${input}!`;
       });
     ```
 

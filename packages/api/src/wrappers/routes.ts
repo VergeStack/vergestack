@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z, ZodType } from 'zod';
 import { ApiError } from '../types';
-import { execute } from './common';
+import { ApiHandler, execute } from './common';
 
 type ApiResponseOrErrors<OutputType> = NextResponse<OutputType | ApiError[]>;
 
 export function wrapRoute<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
   outputSchema: ZodType<OutputType>,
-  fn: (body: InputType) => Promise<OutputType>
+  fn: (body: { input: InputType }) => Promise<OutputType>
 ): (request: NextRequest) => Promise<ApiResponseOrErrors<OutputType>> {
   return async function (
     request: NextRequest
@@ -17,8 +17,11 @@ export function wrapRoute<InputType, OutputType>(
     const { errors, data, status } = await execute(
       inputSchema,
       outputSchema,
-      fn,
-      inputData
+      ({ input }) => fn({ input }),
+      {
+        input: inputData,
+        request
+      }
     );
     if (errors) {
       return NextResponse.json(errors, { status });
@@ -30,7 +33,7 @@ export function wrapRoute<InputType, OutputType>(
 class RouteCreator<InputType = unknown, OutputType = unknown> {
   inputSchema?: ZodType<InputType>;
   outputSchema?: ZodType<OutputType>;
-  handlerFunc?: (input: InputType) => Promise<OutputType>;
+  handlerFunc?: ({ input }: { input: InputType }) => Promise<OutputType>;
 
   constructor() {
     this.inputSchema = z.any();
@@ -43,7 +46,7 @@ class RouteCreator<InputType = unknown, OutputType = unknown> {
     creator.inputSchema = inputSchema;
     creator.outputSchema = this.outputSchema;
     creator.handlerFunc = this.handlerFunc as
-      | ((input: T) => Promise<OutputType>)
+      | ApiHandler<T, OutputType>
       | undefined;
     return creator;
   }
@@ -53,13 +56,13 @@ class RouteCreator<InputType = unknown, OutputType = unknown> {
     creator.inputSchema = this.inputSchema;
     creator.outputSchema = outputSchema;
     creator.handlerFunc = this.handlerFunc as
-      | ((input: InputType) => Promise<T>)
+      | ApiHandler<InputType, T>
       | undefined;
     return creator;
   }
 
   handler(
-    handlerFunc: (input: InputType) => Promise<OutputType>
+    handlerFunc: ({ input }: { input: InputType }) => Promise<OutputType>
   ): (request: NextRequest) => Promise<ApiResponseOrErrors<OutputType>> {
     if (!this.inputSchema || !this.outputSchema) {
       throw new Error('Input and output schemas must be defined');

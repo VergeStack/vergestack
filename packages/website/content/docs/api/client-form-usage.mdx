@@ -48,8 +48,8 @@ To use `useAction` with forms, you'll primarily use the `executeForm` function:
         })
       )
       .output(z.string())
-      .handler(async ({ username }) => {
-        return `Hello, ${username}!`;
+      .handler(async ({ input }) => {
+        return `Hello, ${input.username}!`;
       });
     ```
 
@@ -109,8 +109,8 @@ This is useful for displaying inline error messages for fields such as an email 
         })
       )
       .output(z.string())
-      .handler(async ({ name }) => {
-        return `Hello, ${name}!`;
+      .handler(async ({ input }) => {
+        return `Hello, ${input.name}!`;
       });
     ```
 

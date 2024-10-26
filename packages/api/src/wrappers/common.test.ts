@@ -11,13 +11,13 @@ import { execute } from './common';
 describe('execute', () => {
   const inputSchema = z.object({ name: z.string() });
   const outputSchema = z.object({ greeting: z.string() });
-  const greetingFunction = async (input: { name: string }) => {
+  const greetingFunction = async ({ input }: { input: { name: string } }) => {
     return { greeting: `Hello, ${input.name}!` };
   };
 
   it('should successfully handle valid input and output', async () => {
     const result = await execute(inputSchema, outputSchema, greetingFunction, {
-      name: 'Alice'
+      input: { name: 'Alice' }
     });
     expect(result).toEqual({
       status: StatusCodes.OK,
@@ -26,13 +26,12 @@ describe('execute', () => {
   });
 
   it('should return an error for invalid input', async () => {
-    const result = await execute(
-      inputSchema,
-      outputSchema,
-      greetingFunction,
-      // @ts-expect-error: Intentionally passing invalid input for testing
-      { name: 123 }
-    );
+    const result = await execute(inputSchema, outputSchema, greetingFunction, {
+      input: {
+        // @ts-expect-error: Intentionally passing invalid input for testing
+        name: 123
+      }
+    });
     expect(result).toEqual({
       status: StatusCodes.BAD_REQUEST,
       errors: [{ message: 'Expected string, received number', reason: 'name' }]
@@ -40,11 +39,15 @@ describe('execute', () => {
   });
 
   it('should handle generic errors thrown by the function', async () => {
-    const errorFunction = async () => {
+    const errorFunction = async ({
+      input: _input
+    }: {
+      input: { name: string };
+    }) => {
       throw new Error('Unexpected error');
     };
     const result = await execute(inputSchema, outputSchema, errorFunction, {
-      name: 'Charlie'
+      input: { name: 'Charlie' }
     });
     expect(result).toEqual({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -56,7 +59,7 @@ describe('execute', () => {
     const invalidFunction = async () => ({ invalidKey: 'Invalid data' });
     // @ts-expect-error: Intentionally passing invalid output for testing
     const result = await execute(inputSchema, outputSchema, invalidFunction, {
-      name: 'David'
+      input: { name: 'David' }
     });
     expect(result).toEqual({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -69,7 +72,7 @@ describe('execute', () => {
       throw new VisibleInternalError('Internal error message', 'custom/path');
     };
     const result = await execute(inputSchema, outputSchema, errorFunction, {
-      name: 'Bob'
+      input: { name: 'Bob' }
     });
     expect(result).toEqual({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -82,7 +85,7 @@ describe('execute', () => {
       throw new UnauthorizedError('Unauthorized access message', 'auth/token');
     };
     const result = await execute(inputSchema, outputSchema, errorFunction, {
-      name: 'Alice'
+      input: { name: 'Alice' }
     });
     expect(result).toEqual({
       status: StatusCodes.UNAUTHORIZED,
@@ -95,7 +98,7 @@ describe('execute', () => {
       throw new ForbiddenError('Access forbidden message', 'user/permissions');
     };
     const result = await execute(inputSchema, outputSchema, errorFunction, {
-      name: 'Bob'
+      input: { name: 'Bob' }
     });
     expect(result).toEqual({
       status: StatusCodes.FORBIDDEN,
@@ -110,7 +113,7 @@ describe('execute', () => {
       throw new NotFoundError('Resource not found message', 'data/id');
     };
     const result = await execute(inputSchema, outputSchema, errorFunction, {
-      name: 'Charlie'
+      input: { name: 'Charlie' }
     });
     expect(result).toEqual({
       status: StatusCodes.NOT_FOUND,

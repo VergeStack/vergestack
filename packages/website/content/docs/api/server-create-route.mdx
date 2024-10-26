@@ -15,7 +15,7 @@ import { z } from 'zod';
 export const GET = createRoute()
   .input(z.object({ name: z.string() }))
   .output(z.object({ greeting: z.string() }))
-  .handler(async (input) => {
+  .handler(async ({ input }) => {
     return { greeting: `Hello, ${input.name}!` };
   });
 ```
@@ -55,7 +55,7 @@ export const POST = createRoute()
       username: z.string()
     })
   )
-  .handler(async (input) => {
+  .handler(async ({ input }) => {
     // Interact with database here, this is just a mock response
     return {
       id: 1,

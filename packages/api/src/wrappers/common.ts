@@ -1,18 +1,26 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import type { NextRequest } from 'next/server';
 import { ZodType } from 'zod';
 import { ApiResponse, GenericError } from '../types';
 
+export type ApiHandlerParams<InputType> = {
+  input: InputType;
+  request?: NextRequest;
+};
+
 export type ApiHandler<InputType, OutputType> = (
-  input: InputType
+  params: ApiHandlerParams<InputType>
 ) => Promise<OutputType>;
 
 export async function execute<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
   outputSchema: ZodType<OutputType>,
   fn: ApiHandler<InputType, OutputType>,
-  inputData: InputType
+  params: ApiHandlerParams<InputType>
 ): Promise<ApiResponse<OutputType>> {
-  const { error: inputErrors, data: input } = inputSchema.safeParse(inputData);
+  const { error: inputErrors, data: inputData } = inputSchema.safeParse(
+    params.input
+  );
 
   if (inputErrors) {
     return {
@@ -25,7 +33,10 @@ export async function execute<InputType, OutputType>(
   }
 
   try {
-    const handlerResponse = await fn(input);
+    const handlerResponse = await fn({
+      input: inputData,
+      request: params.request
+    });
     const response = outputSchema.parse(handlerResponse);
 
     const status = StatusCodes.OK;

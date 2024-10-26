@@ -3,7 +3,7 @@ import { ApiResponse } from '../types';
 import { ApiHandler, execute } from './common';
 
 export type GeneratedActionHandler<InputType, OutputType> = (
-  inputData: InputType
+  input: InputType
 ) => Promise<ApiResponse<OutputType>>;
 
 export function wrapAction<InputType, OutputType>(
@@ -11,10 +11,8 @@ export function wrapAction<InputType, OutputType>(
   outputSchema: ZodType<OutputType>,
   fn: ApiHandler<InputType, OutputType>
 ): GeneratedActionHandler<InputType, OutputType> {
-  return async function (
-    inputData: InputType
-  ): Promise<ApiResponse<OutputType>> {
-    return execute(inputSchema, outputSchema, fn, inputData);
+  return async function (input: InputType): Promise<ApiResponse<OutputType>> {
+    return execute(inputSchema, outputSchema, fn, { input });
   };
 }
 
@@ -34,7 +32,7 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
     creator.inputSchema = inputSchema;
     creator.outputSchema = this.outputSchema;
     creator.handlerFunc = this.handlerFunc as
-      | ((input: T) => Promise<OutputType>)
+      | ApiHandler<T, OutputType>
       | undefined;
     return creator;
   }
@@ -44,7 +42,7 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
     creator.inputSchema = this.inputSchema;
     creator.outputSchema = outputSchema;
     creator.handlerFunc = this.handlerFunc as
-      | ((input: InputType) => Promise<T>)
+      | ApiHandler<InputType, T>
       | undefined;
     return creator;
   }

@@ -26,8 +26,8 @@ import { z } from 'zod';
 export const greetingAction = createAction()
   .input(z.object({ name: z.string() }))
   .output(z.string())
-  .handler(async ({ name }) => {
-    return `Hello, ${name}!`;
+  .handler(async ({ input }) => {
+    return `Hello, ${input.name}!`;
   });
 ```
 
@@ -71,7 +71,7 @@ import { z } from 'zod';
 export const GET = createRoute()
   .input(z.object({ name: z.string() }))
   .output(z.object({ greeting: z.string() }))
-  .handler(async (input) => {
+  .handler(async ({ input }) => {
     return { greeting: `Hello, ${input.name}!` };
   });
 ```
