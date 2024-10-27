@@ -1,5 +1,13 @@
 # @vergestack/api-react
 
+## 0.4.1
+
+### Patch Changes
+
+- b72580f: Added README
+- Updated dependencies [b72580f]
+  - @vergestack/api@0.3.1
+
 ## 0.4.0
 
 ### Minor Changes

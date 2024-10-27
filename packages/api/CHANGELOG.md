@@ -1,5 +1,11 @@
 # @vergestack/api
 
+## 0.3.1
+
+### Patch Changes
+
+- b72580f: Added README
+
 ## 0.3.0
 
 ### Minor Changes
