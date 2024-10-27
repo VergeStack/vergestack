@@ -1,5 +1,11 @@
 # @vergestack/api
 
+## 0.3.0
+
+### Minor Changes
+
+- c27b229: Added global and local options, improved ergonomics of defining actions+routes
+
 ## 0.2.1
 
 ### Patch Changes
