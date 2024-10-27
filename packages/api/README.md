@@ -100,33 +100,6 @@ export const userAction = createAction()
   });
 ```
 
-### Configuration
-
-Configure global options using the ApiProvider:
-
-```tsx
-import { ApiProvider } from '@vergestack/api-react';
-
-function App() {
-  return (
-    <ApiProvider
-      value={{
-        options: {
-          onError: (errors) => {
-            console.error('API Error:', errors);
-          },
-          onSuccess: (data) => {
-            console.log('Success:', data);
-          }
-        }
-      }}
-    >
-      {/* Your app components */}
-    </ApiProvider>
-  );
-}
-```
-
 For detailed API documentation, visit our [documentation site](https://vergestack.com/docs/api).
 
 ## License
