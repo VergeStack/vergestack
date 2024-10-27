@@ -100,7 +100,7 @@ export const userAction = createAction()
   });
 ```
 
-For detailed API documentation, visit our [documentation site](https://vergestack.com/docs/api).
+For detailed API documentation, visit the [documentation site](https://vergestack.com/docs/api).
 
 ## License
 

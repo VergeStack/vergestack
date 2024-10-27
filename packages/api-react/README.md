@@ -48,7 +48,7 @@ function GreetingComponent() {
 Configure the hook behavior with local options:
 
 ```tsx
-const { data, execute } = useAction(myServerAction, {
+const { execute } = useAction(myServerAction, {
   initialData: defaultValue,
   onStart: () => {
     console.log('Action started');
@@ -125,7 +125,7 @@ function FormComponent() {
 }
 ```
 
-For detailed API documentation, visit our [documentation site](https://vergestack.com/docs/api).
+For detailed API documentation, visit the [documentation site](https://vergestack.com/docs/api).
 
 ## License
 
