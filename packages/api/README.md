@@ -13,7 +13,7 @@ A type-safe API layer for Next.js applications, providing utilities for server a
 ## Installation
 
 ```bash
-npm install @vergestack/api @vergestack/api-react zod
+npm i @vergestack/api @vergestack/api-react zod
 ```
 
 ## Basic Usage

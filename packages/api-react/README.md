@@ -13,7 +13,7 @@ React hooks and utilities for [@vergestack/api](https://www.npmjs.com/package/@v
 ## Installation
 
 ```bash
-npm install @vergestack/api @vergestack/api-react zod
+npm i @vergestack/api @vergestack/api-react zod
 ```
 
 ## Basic Usage
