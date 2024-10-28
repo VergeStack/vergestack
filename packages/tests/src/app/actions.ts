@@ -31,3 +31,14 @@ export const undefinedOutputAction = createAction()
   .handler(async () => {
     return undefined;
   });
+
+export const successFormAction = createAction()
+  .input(
+    z.object({
+      name: z.string()
+    })
+  )
+  .output(z.string())
+  .handler(async ({ input }) => {
+    return `Hello, ${input.name}!`;
+  });
