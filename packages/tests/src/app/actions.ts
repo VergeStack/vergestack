@@ -35,7 +35,7 @@ export const undefinedOutputAction = createAction()
 export const successFormAction = createAction()
   .input(
     z.object({
-      name: z.string()
+      name: z.string().min(3)
     })
   )
   .output(z.string())

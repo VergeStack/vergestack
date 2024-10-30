@@ -103,7 +103,19 @@ export function useAction<InputType, OutputType>(
   );
 
   const executeForm = useCallback(
-    async (formData: FormData): Promise<void> => {
+    async (
+      formDataOrEvent: FormData | React.FormEvent<HTMLFormElement>
+    ): Promise<void> => {
+      let formData: FormData;
+
+      if ('preventDefault' in formDataOrEvent) {
+        formDataOrEvent.preventDefault();
+        const form = formDataOrEvent.currentTarget as HTMLFormElement;
+        formData = new FormData(form);
+      } else {
+        formData = formDataOrEvent;
+      }
+
       const inputData: {
         [key: string]: FormDataEntryValue;
       } = {};
