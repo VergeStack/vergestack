@@ -39,6 +39,9 @@ describe('execute', () => {
   });
 
   it('should handle generic errors thrown by the function', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const errorFunction = async ({
       input: _input
     }: {
@@ -53,9 +56,14 @@ describe('execute', () => {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       errors: [{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]
     });
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   it('should return an error for invalid output', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const invalidFunction = async () => ({ invalidKey: 'Invalid data' });
     // @ts-expect-error: Intentionally passing invalid output for testing
     const result = await execute(inputSchema, outputSchema, invalidFunction, {
@@ -65,6 +73,8 @@ describe('execute', () => {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       errors: [{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]
     });
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   it('should handle VisibleInternalError thrown by the function', async () => {

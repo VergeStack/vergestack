@@ -4,13 +4,14 @@ import { ZodType } from 'zod';
 import { ApiResponse, GenericError } from '../types';
 
 export type ApiHandlerParams<InputType> = {
-  input: InputType;
+  input: InputType | FormData;
   request?: NextRequest;
 };
 
-export type ApiHandler<InputType, OutputType> = (
-  params: ApiHandlerParams<InputType>
-) => Promise<OutputType>;
+export type ApiHandler<InputType, OutputType> = (params: {
+  input: InputType;
+  request?: NextRequest;
+}) => Promise<OutputType>;
 
 export async function execute<InputType, OutputType>(
   inputSchema: ZodType<InputType>,
@@ -18,9 +19,16 @@ export async function execute<InputType, OutputType>(
   fn: ApiHandler<InputType, OutputType>,
   params: ApiHandlerParams<InputType>
 ): Promise<ApiResponse<OutputType>> {
-  const { error: inputErrors, data: inputData } = inputSchema.safeParse(
-    params.input
-  );
+  let unparsedInput: InputType;
+  if (params.input instanceof FormData) {
+    const formData = Object.fromEntries(params.input.entries());
+    unparsedInput = formData as InputType;
+  } else {
+    unparsedInput = params.input;
+  }
+
+  const { error: inputErrors, data: inputData } =
+    inputSchema.safeParse(unparsedInput);
 
   if (inputErrors) {
     return {
@@ -37,6 +45,7 @@ export async function execute<InputType, OutputType>(
       input: inputData,
       request: params.request
     });
+
     const response = outputSchema.parse(handlerResponse);
 
     const status = StatusCodes.OK;
@@ -54,9 +63,10 @@ export async function execute<InputType, OutputType>(
       };
     }
 
-    const status = StatusCodes.INTERNAL_SERVER_ERROR;
+    console.error(err);
+
     return {
-      status,
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
       errors: [{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]
     };
   }

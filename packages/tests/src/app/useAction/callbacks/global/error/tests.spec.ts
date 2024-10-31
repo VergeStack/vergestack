@@ -28,7 +28,7 @@ test('useAction global error', async ({ page }) => {
   await page.click('button');
 
   await page.waitForSelector(
-    'p#error:has-text(\'[{"message":"Internal Server Error"}]\')'
+    'p#error:has-text(\'[{"message":"Forbidden error!"}]\')'
   );
 
   await page.waitForFunction(() => window.callbackLogs.length >= 3);
@@ -43,7 +43,7 @@ test('useAction global error', async ({ page }) => {
   expect(onErrorLog.errors).toEqual(
     expect.arrayContaining([
       {
-        message: 'Internal Server Error'
+        message: 'Forbidden error!'
       }
     ])
   );

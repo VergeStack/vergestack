@@ -1,12 +1,12 @@
-import { ApiResponseStatus } from '@vergestack/api';
+import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
 import {
-  useActionState,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  useTransition
 } from 'react';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
@@ -21,16 +21,15 @@ export type UseActionOptions<OutputType> = {
 };
 
 type ActionState<OutputType> = {
-  data: OutputType | undefined;
-  status: ApiResponseStatus | undefined;
+  data?: OutputType;
+  status?: ApiResponseStatus;
   errors: ApiErrorWithMetadata[];
 };
 
 export function useAction<InputType, OutputType>(
   actionHandler: (
-    prevState: ActionState<OutputType>,
-    inputData: InputType
-  ) => Promise<ActionState<OutputType>>,
+    inputData: InputType | FormData
+  ) => Promise<ApiResponse<OutputType>>,
   optionsObject?: UseActionOptions<OutputType>
 ) {
   const localOptions = useRef(optionsObject);
@@ -38,12 +37,10 @@ export function useAction<InputType, OutputType>(
   const globalOptions = useContext(ApiContext);
 
   const [hasJS, setHasJS] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const registeredPathsRef = useRef<Set<string>>(new Set<string>());
 
-  const [state, dispatchAction, isPending] = useActionState<
-    ActionState<OutputType>,
-    InputType
-  >(actionHandler, {
+  const [state, setState] = useState<ActionState<OutputType>>({
     data: localOptions.current?.initialData,
     status: undefined,
     errors: []
@@ -59,52 +56,55 @@ export function useAction<InputType, OutputType>(
     isPendingRef.current = isPending;
   }, [isPending]);
 
-  const { status } = state;
-  const isSuccess = useMemo(
-    () => status !== undefined && isSuccessStatus(status),
-    [status]
-  );
-  const isError = useMemo(
-    () => status !== undefined && !isSuccessStatus(status),
-    [status]
-  );
-
-  useEffect(() => {
-    const options = {
-      ...globalOptions.options,
-      ...localOptions.current
-    };
-
-    if (isPending) {
-      options.onStart?.();
-    } else {
-      if (isSuccess) {
-        options.onSuccess?.(state.data as OutputType);
-      } else {
-        options.onError?.(state.errors);
-      }
-
-      options.onComplete?.();
-    }
-  }, [localOptions, globalOptions, isPending, isSuccess, state]);
-
   const execute = useCallback(
-    async (inputData: InputType) => {
+    async (inputData: InputType | FormData) => {
       if (isPendingRef.current) return;
 
-      dispatchAction(inputData);
+      const options = {
+        ...globalOptions.options,
+        ...localOptions.current
+      };
+
+      options.onStart?.();
+
+      startTransition(async () => {
+        const actionResponse = await actionHandler(inputData);
+        const newRawErrors = actionResponse.errors ?? [];
+        const newState = {
+          data: actionResponse.data,
+          status: actionResponse.status,
+          errors: newRawErrors.map((err: ApiError) => ({
+            ...err,
+            isReasonRegistered: err.reason
+              ? registeredPathsRef.current.has(err.reason)
+              : undefined
+          }))
+        };
+        setState(newState);
+
+        const isSuccess = isSuccessStatus(newState.status);
+        const isError = !isSuccess && newState.status !== undefined;
+
+        if (isSuccess) {
+          options.onSuccess?.(newState.data as OutputType);
+        } else if (isError) {
+          options.onError?.(newState.errors);
+        }
+
+        options.onComplete?.();
+      });
     },
-    [dispatchAction, isPendingRef]
+    [actionHandler, isPendingRef]
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    execute(formData as InputType);
+    execute(formData);
   }
 
   const handlers = {
-    action: dispatchAction,
+    action: actionHandler,
     onSubmit: hasJS ? handleSubmit : undefined
   };
 
@@ -118,6 +118,16 @@ export function useAction<InputType, OutputType>(
         ?.message;
     },
     [state.errors]
+  );
+
+  const { status } = state;
+  const isSuccess = useMemo(
+    () => status !== undefined && isSuccessStatus(status),
+    [status]
+  );
+  const isError = useMemo(
+    () => status !== undefined && !isSuccessStatus(status),
+    [status]
   );
 
   return {

@@ -38,8 +38,9 @@
     "http-status-codes": "^2.3.0"
   },
   "peerDependencies": {
-    "next": "^14.2.5",
-    "react": "^18.3.1",
+    "next": "^15.0.2",
+    "react": "19.0.0-rc-02c0e824-20241028",
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
     "zod": "^3.23.8"
   }
 }

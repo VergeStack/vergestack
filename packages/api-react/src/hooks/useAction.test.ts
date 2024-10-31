@@ -92,19 +92,31 @@ describe('useAction', () => {
 
     const { result } = renderHook(() => useAction(mockActionHandler));
 
-    const formData = new FormData();
-    formData.append('name', 'John');
-    formData.append('age', '30');
+    const mockForm = document.createElement('form');
+    const nameInput = document.createElement('input');
+    nameInput.name = 'name';
+    nameInput.value = 'John';
+    const ageInput = document.createElement('input');
+    ageInput.name = 'age';
+    ageInput.value = '30';
+    mockForm.appendChild(nameInput);
+    mockForm.appendChild(ageInput);
+
+    const mockEvent = {
+      preventDefault: jest.fn(),
+      currentTarget: mockForm
+    } as unknown as React.FormEvent<HTMLFormElement>;
 
     act(() => {
-      result.current.executeForm(formData);
+      result.current.handlers.onSubmit?.(mockEvent);
     });
 
     await waitFor(() => {
       expect(result.current.isPending).toBe(false);
     });
 
-    expect(mockActionHandler).toHaveBeenCalledWith({ name: 'John', age: '30' });
+    expect(mockEvent.preventDefault).toHaveBeenCalled();
+    expect(mockActionHandler).toHaveBeenCalled();
     expect(result.current.data).toBe('Form Success');
     expect(result.current.isSuccess).toBe(true);
     expect(result.current.isError).toBe(false);

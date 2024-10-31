@@ -37,6 +37,9 @@ describe('wrapAction', () => {
   });
 
   it('should throw an error for invalid output', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const invalidFunction = async () => ({ invalidKey: 'Invalid data' });
     const action = wrapAction(
       inputSchema,
@@ -52,6 +55,8 @@ describe('wrapAction', () => {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       errors: [{ message: ReasonPhrases.INTERNAL_SERVER_ERROR }]
     });
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 });
 
@@ -72,6 +77,9 @@ describe('createAction', () => {
   });
 
   test('native error', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const greetingAction = createAction()
       .input(z.void())
       .output(z.void())
@@ -88,6 +96,8 @@ describe('createAction', () => {
         message: ReasonPhrases.INTERNAL_SERVER_ERROR
       }
     ]);
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   test('visible internal error', async () => {

@@ -33,7 +33,7 @@ test('useAction error', async ({ page }) => {
 
   // Check if the error message is present
   await page.waitForSelector(
-    'p#error:has-text(\'[{"message":"Internal Server Error"}]\')'
+    'p#error:has-text(\'[{"message":"Forbidden error!"}]\')'
   );
 
   // Wait for logs to be populated
@@ -48,7 +48,7 @@ test('useAction error', async ({ page }) => {
   expect(onErrorLog.errors).toEqual(
     expect.arrayContaining([
       {
-        message: 'Internal Server Error'
+        message: 'Forbidden error!'
       }
     ])
   );

@@ -10,5 +10,5 @@ test('useAction error', async ({ page }) => {
   await page.waitForSelector('p#data:empty', { state: 'attached' });
 
   const errorText = await page.textContent('p#error');
-  expect(errorText).toBe('[{"message":"Internal Server Error"}]');
+  expect(errorText).toBe('[{"message":"Forbidden error!"}]');
 });

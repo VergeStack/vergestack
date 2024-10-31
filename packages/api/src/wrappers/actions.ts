@@ -3,7 +3,7 @@ import { ApiResponse } from '../types';
 import { ApiHandler, execute } from './common';
 
 export type GeneratedActionHandler<InputType, OutputType> = (
-  input: InputType
+  input: InputType | FormData
 ) => Promise<ApiResponse<OutputType>>;
 
 export function wrapAction<InputType, OutputType>(
@@ -11,7 +11,9 @@ export function wrapAction<InputType, OutputType>(
   outputSchema: ZodType<OutputType>,
   fn: ApiHandler<InputType, OutputType>
 ): GeneratedActionHandler<InputType, OutputType> {
-  return async function (input: InputType): Promise<ApiResponse<OutputType>> {
+  return async function (
+    input: InputType | FormData
+  ): Promise<ApiResponse<OutputType>> {
     return execute(inputSchema, outputSchema, fn, { input });
   };
 }

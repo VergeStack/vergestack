@@ -54,6 +54,9 @@ describe('createRoute', () => {
   });
 
   it('should return an error for invalid output', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const invalidFunction = async () => ({ invalidKey: 'Invalid data' });
     const route = createRoute()
       .input(inputSchema)
@@ -76,9 +79,14 @@ describe('createRoute', () => {
       { message: ReasonPhrases.INTERNAL_SERVER_ERROR }
     ]);
     expect(statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   it('should handle native errors', async () => {
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn());
     const errorFunction = async () => {
       throw new Error('Something went wrong');
     };
@@ -98,6 +106,8 @@ describe('createRoute', () => {
       { message: ReasonPhrases.INTERNAL_SERVER_ERROR }
     ]);
     expect(statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 
   it('should handle VisibleInternalError', async () => {

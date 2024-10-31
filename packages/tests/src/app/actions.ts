@@ -1,6 +1,6 @@
 'use server';
 
-import { createAction } from '@vergestack/api';
+import { createAction, ForbiddenError } from '@vergestack/api';
 import { z } from 'zod';
 
 export const successAction = createAction()
@@ -22,7 +22,7 @@ export const errorAction = createAction()
   .input(z.string())
   .output(z.string())
   .handler(async () => {
-    throw new Error('Hello, world!');
+    throw new ForbiddenError('Forbidden error!');
   });
 
 export const undefinedOutputAction = createAction()
