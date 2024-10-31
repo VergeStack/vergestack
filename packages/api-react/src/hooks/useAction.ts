@@ -1,9 +1,16 @@
-import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
-import { StatusCodes } from 'http-status-codes';
-import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ApiResponseStatus } from '@vergestack/api';
+import {
+  useActionState,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
-import { defaultOnError, isSuccessStatus } from '../utils';
+import { isSuccessStatus } from '../utils';
 
 export type UseActionOptions<OutputType> = {
   initialData?: OutputType;
@@ -20,114 +27,86 @@ type ActionState<OutputType> = {
 };
 
 export function useAction<InputType, OutputType>(
-  actionHandler: (inputData: InputType) => Promise<ApiResponse<OutputType>>,
+  actionHandler: (
+    prevState: ActionState<OutputType>,
+    inputData: InputType
+  ) => Promise<ActionState<OutputType>>,
   optionsObject?: UseActionOptions<OutputType>
 ) {
   const localOptions = useRef(optionsObject);
   localOptions.current = optionsObject;
   const globalOptions = useContext(ApiContext);
 
-  const [isPendingState, setIsPendingState] = useState(false);
-  const isPendingRef = useRef(false);
-
+  const [hasJS, setHasJS] = useState(false);
   const registeredPathsRef = useRef<Set<string>>(new Set<string>());
-  const [state, setState] = useState<ActionState<OutputType>>({
+
+  const [state, dispatchAction, isPending] = useActionState<
+    ActionState<OutputType>,
+    InputType
+  >(actionHandler, {
     data: localOptions.current?.initialData,
     status: undefined,
     errors: []
   });
 
-  const executeInternal = useCallback(
-    async (inputData: InputType) => {
-      const options = {
-        ...globalOptions.options,
-        ...localOptions.current
-      };
+  const isPendingRef = useRef(false);
 
-      options.onStart?.();
+  useEffect(() => {
+    setHasJS(true);
+  }, []);
 
-      let newState: ActionState<OutputType> = {
-        data: undefined,
-        status: StatusCodes.INTERNAL_SERVER_ERROR,
-        errors: []
-      };
+  useEffect(() => {
+    isPendingRef.current = isPending;
+  }, [isPending]);
 
-      const result = await actionHandler(inputData);
-
-      const newRawErrors = result.errors ?? [];
-
-      newState = {
-        data: result.data,
-        status: result.status,
-        errors: newRawErrors.map((err: ApiError) => ({
-          ...err,
-          isReasonRegistered: err.reason
-            ? registeredPathsRef.current.has(err.reason)
-            : undefined
-        }))
-      };
-
-      setState(newState);
-
-      try {
-        if (newState.status && isSuccessStatus(newState.status)) {
-          options.onSuccess?.(newState.data as OutputType);
-        } else {
-          if (options.onError) {
-            options.onError(newState.errors);
-          } else {
-            defaultOnError(newState.errors);
-          }
-        }
-      } finally {
-        options.onComplete?.();
-      }
-    },
-    [actionHandler, localOptions, globalOptions, registeredPathsRef]
+  const { status } = state;
+  const isSuccess = useMemo(
+    () => status !== undefined && isSuccessStatus(status),
+    [status]
   );
+  const isError = useMemo(
+    () => status !== undefined && !isSuccessStatus(status),
+    [status]
+  );
+
+  useEffect(() => {
+    const options = {
+      ...globalOptions.options,
+      ...localOptions.current
+    };
+
+    if (isPending) {
+      options.onStart?.();
+    } else {
+      if (isSuccess) {
+        options.onSuccess?.(state.data as OutputType);
+      } else {
+        options.onError?.(state.errors);
+      }
+
+      options.onComplete?.();
+    }
+  }, [localOptions, globalOptions, isPending, isSuccess, state]);
 
   const execute = useCallback(
     async (inputData: InputType) => {
       if (isPendingRef.current) return;
-      isPendingRef.current = true;
-      setIsPendingState(true);
 
-      try {
-        await executeInternal(inputData);
-      } finally {
-        isPendingRef.current = false;
-        setIsPendingState(false);
-      }
+      dispatchAction(inputData);
     },
-    [executeInternal, isPendingRef]
+    [dispatchAction, isPendingRef]
   );
 
-  const executeForm = useCallback(
-    async (
-      formDataOrEvent: FormData | React.FormEvent<HTMLFormElement>
-    ): Promise<void> => {
-      let formData: FormData;
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    execute(formData as InputType);
+  }
 
-      if ('preventDefault' in formDataOrEvent) {
-        formDataOrEvent.preventDefault();
-        const form = formDataOrEvent.currentTarget as HTMLFormElement;
-        formData = new FormData(form);
-      } else {
-        formData = formDataOrEvent;
-      }
-
-      const inputData: {
-        [key: string]: FormDataEntryValue;
-      } = {};
-
-      for (const [key, value] of formData.entries()) {
-        inputData[key] = value;
-      }
-
-      await execute(inputData as InputType);
-    },
-    [execute]
-  );
+  const handlers = {
+    action: dispatchAction,
+    onSubmit: hasJS ? handleSubmit : undefined
+  };
 
   const getFormError = useCallback(
     (name: string): string | undefined => {
@@ -141,23 +120,13 @@ export function useAction<InputType, OutputType>(
     [state.errors]
   );
 
-  const { status } = state;
-  const isSuccess = useMemo(
-    () => status !== undefined && isSuccessStatus(status),
-    [status]
-  );
-  const isError = useMemo(
-    () => status !== undefined && !isSuccessStatus(status),
-    [status]
-  );
-
   return {
     ...state,
-    isPending: isPendingState,
+    isPending,
     isSuccess,
     isError,
     execute,
-    executeForm,
+    handlers,
     getFormError
   };
 }

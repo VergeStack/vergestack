@@ -25,8 +25,8 @@
     "@vergestack/api": "workspace:*",
     "@vergestack/api-react": "workspace:*",
     "next": "^15.0.2",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "19.0.0-rc-02c0e824-20241028",
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
     "zod": "^3.23.8"
   },
   "devDependencies": {
