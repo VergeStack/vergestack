@@ -4,7 +4,7 @@ test.use({ javaScriptEnabled: false });
 const expectedFormData =
   `Content-Disposition: form-data; name="name" world`.replace(/\s+/g, ' ');
 
-test('useAction success form', async ({ page }) => {
+test('useAction success form with js disabled', async ({ page }) => {
   await page.goto('/useAction/success-form-js-disabled');
 
   await page.fill('input[name="name"]', 'world');
