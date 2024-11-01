@@ -63,6 +63,10 @@ export async function execute<InputType, OutputType>(
       };
     }
 
+    if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+      throw err;
+    }
+
     console.error(err);
 
     return {

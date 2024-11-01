@@ -1,6 +1,7 @@
 'use server';
 
 import { createAction, ForbiddenError } from '@vergestack/api';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 export const successAction = createAction()
@@ -40,5 +41,9 @@ export const successFormAction = createAction()
   )
   .output(z.string())
   .handler(async ({ input }) => {
+    if (input.name === 'redirect') {
+      redirect('/useAction/success-form-persist-input');
+    }
+
     return `Hello, ${input.name}!`;
   });
