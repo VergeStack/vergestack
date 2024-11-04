@@ -1,5 +1,19 @@
 # @vergestack/api-react
 
+## 0.5.0
+
+### Minor Changes
+
+- 187755e: Implemented new {...handlers} syntax to support progressive enhancement
+- e75a153: Added support for onSubmit
+
+### Patch Changes
+
+- 0bd1891: Update to shorthand install command
+- Updated dependencies [187755e]
+- Updated dependencies [0bd1891]
+  - @vergestack/api@0.4.0
+
 ## 0.4.1
 
 ### Patch Changes
