@@ -65,11 +65,11 @@ Once you have defined a server action or route handler, you can call it from a c
     import { greetingAction } from './actions';
 
     export const ActionComponent = () => {
-      const { executeForm, data, error } = useAction(greetingAction);
+      const { handlers, data, error } = useAction(greetingAction);
 
       return (
         <div>
-          <form action={executeForm}>
+          <form {...handlers}>
             <input type="text" name="name" />
             <button type="submit">Generate Greeting</button>
           </form>
@@ -84,18 +84,30 @@ Once you have defined a server action or route handler, you can call it from a c
   <Tab value="RouteComponent.tsx" label="RouteComponent.tsx">
 
     ```tsx
-    import { useQuery } from '@tanstack/react-query'
+    import { useMutation } from '@tanstack/react-query'
+    import { useState } from 'react'
 
     export const RouteComponent = () => {
-      const { data, error } = useQuery({
-        queryKey: ['greeting'],
-        queryFn: () => fetch('path/to/route').then(res => res.json())
+      const [name, setName] = useState('')
+      const { data, error } = useMutation({
+        mutationFn: (name: string) =>
+          fetch('path/to/route', {
+            method: 'POST',
+            body: name
+          }).then(res => res.json())
       });
 
       return (
         <div>
-          <form action={executeForm}>
-            <input type="text" name="name" />
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            mutation.mutate(name)
+          }}>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
             <button type="submit">Generate Greeting</button>
           </form>
           {data && <p>Response: {data}</p>}

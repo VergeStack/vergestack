@@ -20,18 +20,18 @@ npm i @vergestack/api @vergestack/api-react zod
 
 ### useAction Hook
 
-The `useAction` hook provides a simple way to integrate server actions with React components:
+The `useAction` hook provides a simple way to integrate server actions with React components, with built-in progressive enhancement support:
 
 ```tsx
 import { useAction } from '@vergestack/api-react';
 import { greetingAction } from './actions';
 
 function GreetingComponent() {
-  const { data, errors, executeForm } = useAction(greetingAction);
+  const { data, errors, handlers } = useAction(greetingAction);
 
   return (
     <>
-      <form action={executeForm}>
+      <form {...handlers}>
         <input name="name" />
         <button type="submit">Greet</button>
       </form>
@@ -42,6 +42,12 @@ function GreetingComponent() {
   );
 }
 ```
+
+The `{...handlers}` spread syntax provides:
+
+- Client-side form handling with JavaScript enabled
+- Automatic fallback to native form submission when JavaScript is disabled
+- Supports both the native <form> element and the new Next.js <Form> element
 
 ### Hook Options
 
@@ -105,10 +111,10 @@ function ErrorField({ text }: { text?: string }) {
 }
 
 function FormComponent() {
-  const { executeForm, getFormError } = useAction(submitFormAction);
+  const { handlers, getFormError } = useAction(submitFormAction);
 
   return (
-    <form action={executeForm}>
+    <form {...handlers}>
       <div>
         <input name="username" />
         <ErrorField text={getFormError('username')} />

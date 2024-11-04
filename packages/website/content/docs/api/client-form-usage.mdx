@@ -2,11 +2,11 @@
 title: Forms
 ---
 
-The `useAction` hook provides a convenient way to handle form submissions in React applications. It offers built-in form handling capabilities and error management.
+The `useAction` hook provides a convenient way to handle form submissions in React applications. It offers built-in form handling capabilities, error management, and progressive enhancement support.
 
 ## Basic Form Handling
 
-To use `useAction` with forms, you'll primarily use the `executeForm` function:
+To use `useAction` with forms, spread the `handlers` object onto your form element:
 
 <Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
@@ -16,11 +16,11 @@ To use `useAction` with forms, you'll primarily use the `executeForm` function:
     import { greetingAction } from './actions';
 
     export function GreetingComponent() {
-      const { data, errors, executeForm } = useAction(greetingAction);
+      const { data, errors, handlers } = useAction(greetingAction);
 
       return (
         <>
-          <form action={executeForm}>
+          <form {...handlers}>
             <input name="username" />
             <button type="submit">Greet</button>
           </form>
@@ -56,18 +56,17 @@ To use `useAction` with forms, you'll primarily use the `executeForm` function:
   </Tab>
 </Tabs>
 
-In this example, the `executeForm` function is passed directly to the form's `action` prop. When the form is submitted, the `FormData` object is automatically mapped to a traditional JSON object and used to execute the action.
+The `handlers` object contains all the necessary event handlers and attributes for the form to work with both JavaScript enabled and disabled (progressive enhancement). When JavaScript is enabled, the form submission will be handled client-side with enhanced features. When JavaScript is disabled, the form will fall back to native browser form submission behavior.
 
-<Callout title="Note">
-  When working with a form, you should always use the `executeForm` helper
-  unless you have a special use case.
+<Callout title="Progressive Enhancement" type="info">
+  Forms using the `{...handlers}` syntax work without JavaScript enabled. This
+  ensures your application remains functional even if JavaScript fails to load
+  or is disabled.
 </Callout>
 
 ## Form Error Handling
 
-The `getFormError` function is used to retrieve form-specific errors. The function accepts a `reason` argument. If an error exists with the given reason, the first error message is returned. If no error exists, `undefined` is returned.
-
-This is useful for displaying inline error messages for fields such as an email or password. An error's `reason` is determined by the zod schema path or explicitly defined when throwing a custom error (see [Custom Errors](/docs/api/custom-errors)).
+The `getFormError` function is used to retrieve form-specific errors. The function accepts a field name and returns the first error message for that field if one exists.
 
 <Tabs items={['Greeting.tsx', 'actions.ts']}>
   <Tab value="Greeting.tsx">
@@ -77,15 +76,15 @@ This is useful for displaying inline error messages for fields such as an email 
     import { greetingAction } from './actions';
 
     export function GreetingComponent() {
-      const { executeForm, getFormError } = useAction(greetingAction);
+      const { handlers, getFormError } = useAction(greetingAction);
 
       return (
         <>
-          <form action={executeForm}>
+          <form {...handlers}>
             <input name="name" />
-            <p className="text-red-500"> // [!code highlight]
-              {getFormError('name')} // [!code highlight]
-            </p> // [!code highlight]
+            <p className="text-red-500">
+              {getFormError('name')}
+            </p>
             <button type="submit">Greet</button>
           </form>
         </>
@@ -118,12 +117,10 @@ This is useful for displaying inline error messages for fields such as an email 
 </Tabs>
 
 <Callout title="Note" type="warn">
-  Registering a `getFormError` handler will cause all matching errors to have
-  the `isReasonRegistered` property set to `true`. It's recommended to use
-  `getFormError` for inline error feedback on specific fields (like email or
-  password) and an `onError` handler for fallback error messages. To avoid
-  duplicate errors, ignore errors with the `isReasonRegistered` property set to
-  `true` in your `onError` handler.
+  Registering a `getFormError` handler will mark those errors as handled. It's
+  recommended to use `getFormError` for inline field validation feedback and an
+  `onError` handler for general error messages. To avoid duplicate errors, you
+  can check the `isReasonRegistered` property in your `onError` handler.
 </Callout>
 
 For more advanced usage and the full API reference, check out the [API Reference](./client-api-reference) page.

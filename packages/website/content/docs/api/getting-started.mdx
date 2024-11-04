@@ -42,11 +42,11 @@ import { useAction } from '@vergestack/api-react';
 import { greetingAction } from './actions';
 
 export function GreetingComponent() {
-  const { data, errors, executeForm } = useAction(greetingAction);
+  const { data, errors, handlers } = useAction(greetingAction);
 
   return (
     <>
-      <form action={executeForm}>
+      <form {...handlers}>
         <input name="name" />
         <button type="submit">Greet</button>
       </form>
@@ -57,6 +57,8 @@ export function GreetingComponent() {
   );
 }
 ```
+
+The `{...handlers}` syntax provides built-in progressive enhancement - your form will work even when JavaScript is disabled, while enabling enhanced client-side features when JavaScript is available. This means your forms remain functional for all users while providing an optimized experience for those with JavaScript enabled.
 
 For more information on using the `useAction` hook, check out the [Action Hook](/docs/api/action-hook) documentation.
 

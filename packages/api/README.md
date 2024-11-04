@@ -43,11 +43,11 @@ import { useAction } from '@vergestack/api-react';
 import { greetingAction } from './actions';
 
 export function GreetingComponent() {
-  const { data, errors, executeForm } = useAction(greetingAction);
+  const { data, errors, handlers } = useAction(greetingAction);
 
   return (
     <>
-      <form action={executeForm}>
+      <form {...handlers}>
         <input name="name" />
         <button type="submit">Greet</button>
       </form>
@@ -58,6 +58,8 @@ export function GreetingComponent() {
   );
 }
 ```
+
+The form will work even with JavaScript disabled via progressive enhancement. The `{...handlers}` syntax automatically sets up both client-side handling and native form submission as a fallback.
 
 ### API Routes
 
