@@ -104,7 +104,10 @@ export function useAction<InputType, OutputType>(
   }
 
   const handlers = {
-    action: actionHandler,
+    // We ignore the return data here (cast to void) because this is only used
+    // when JavaScript is disabled (traditional POST request).
+    // This is required to support the new PR: https://github.com/DefinitelyTyped/DefinitelyTyped/pull/70197
+    action: actionHandler as unknown as (formData: FormData) => void,
     onSubmit: hasJS ? handleSubmit : undefined
   };
 
