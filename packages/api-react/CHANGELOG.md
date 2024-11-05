@@ -1,5 +1,11 @@
 # @vergestack/api-react
 
+## 0.5.2
+
+### Patch Changes
+
+- 70bb6e4: Ignore return data when JavaScript is disabled
+
 ## 0.5.1
 
 ### Patch Changes

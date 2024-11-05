@@ -1,6 +1,6 @@
 {
   "name": "@vergestack/api-react",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "React hooks and helpers for @vergestack/api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

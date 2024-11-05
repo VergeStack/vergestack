@@ -1,5 +1,12 @@
 # website
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [70bb6e4]
+  - @vergestack/api-react@0.5.2
+
 ## 0.0.4
 
 ### Patch Changes
