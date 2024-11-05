@@ -1,5 +1,13 @@
 # @vergestack/api-react
 
+## 0.5.1
+
+### Patch Changes
+
+- d372e3a: Update React to use 19 RC version
+- Updated dependencies [d372e3a]
+  - @vergestack/api@0.4.1
+
 ## 0.5.0
 
 ### Minor Changes

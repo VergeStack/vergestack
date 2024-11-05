@@ -1,5 +1,11 @@
 # @vergestack/api
 
+## 0.4.1
+
+### Patch Changes
+
+- d372e3a: Update React to use 19 RC version
+
 ## 0.4.0
 
 ### Minor Changes
