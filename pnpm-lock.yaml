@@ -48,10 +48,10 @@ importers:
         specifier: ^15.0.2
         version: 15.0.2(@babel/core@7.25.2)(@playwright/test@1.46.1)(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028)
       react:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028
       react-dom:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028)
       zod:
         specifier: ^3.23.8
@@ -91,10 +91,10 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       react:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028
       react-dom:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028)
       zod:
         specifier: ^3.23.8
@@ -140,10 +140,10 @@ importers:
         specifier: ^15.0.2
         version: 15.0.2(@babel/core@7.25.2)(@playwright/test@1.46.1)(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028)
       react:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028
       react-dom:
-        specifier: 19.0.0-rc-02c0e824-20241028
+        specifier: ^19.0.0-rc
         version: 19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028)
       zod:
         specifier: ^3.23.8
