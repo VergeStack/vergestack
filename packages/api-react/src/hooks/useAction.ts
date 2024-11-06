@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
-import { isSuccessStatus } from '../utils';
+import { defaultOnError, isSuccessStatus } from '../utils';
 
 export type UseActionOptions<OutputType> = {
   initialData?: OutputType;
@@ -88,7 +88,11 @@ export function useAction<InputType, OutputType>(
         if (isSuccess) {
           options.onSuccess?.(newState.data as OutputType);
         } else if (isError) {
-          options.onError?.(newState.errors);
+          if (options.onError) {
+            options.onError(newState.errors);
+          } else {
+            defaultOnError(newState.errors);
+          }
         }
 
         options.onComplete?.();
@@ -107,7 +111,7 @@ export function useAction<InputType, OutputType>(
     // We ignore the return data here (cast to void) because this is only used
     // when JavaScript is disabled (traditional POST request).
     // This is required to support the new PR: https://github.com/DefinitelyTyped/DefinitelyTyped/pull/70197
-    action: actionHandler as unknown as (formData: FormData) => void,
+    action: actionHandler,
     onSubmit: hasJS ? handleSubmit : undefined
   };
 
