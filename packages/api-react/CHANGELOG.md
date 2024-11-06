@@ -1,5 +1,13 @@
 # @vergestack/api-react
 
+## 0.5.3
+
+### Patch Changes
+
+- ba5c7f6: Add default onError behavior
+- Updated dependencies [ba5c7f6]
+  - @vergestack/api@0.4.2
+
 ## 0.5.2
 
 ### Patch Changes

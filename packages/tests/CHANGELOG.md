@@ -1,5 +1,13 @@
 # @vergestack/tests
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [ba5c7f6]
+  - @vergestack/api@0.4.2
+  - @vergestack/api-react@0.5.3
+
 ## 0.1.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @vergestack/api
 
+## 0.4.2
+
+### Patch Changes
+
+- ba5c7f6: Add default onError behavior
+
 ## 0.4.1
 
 ### Patch Changes
