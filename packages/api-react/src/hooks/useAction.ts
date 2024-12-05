@@ -1,16 +1,15 @@
-import { ApiError, ApiResponse, ApiResponseStatus } from '@vergestack/api';
+import { ApiResponse } from '@vergestack/api';
 import {
+  useActionState,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
-  useState,
-  useTransition
+  useRef
 } from 'react';
 import { ApiContext } from '../providers';
 import { ApiErrorWithMetadata } from '../types';
-import { defaultOnError, isSuccessStatus } from '../utils';
+import { isSuccessStatus } from '../utils';
 
 export type UseActionOptions<OutputType> = {
   initialData?: OutputType;
@@ -20,130 +19,69 @@ export type UseActionOptions<OutputType> = {
   onComplete?: () => void;
 };
 
-type ActionState<OutputType> = {
-  data?: OutputType;
-  status?: ApiResponseStatus;
-  errors: ApiErrorWithMetadata[];
-};
+type ActionState<OutputType> = ApiResponse<OutputType> | null;
 
 export function useAction<InputType, OutputType>(
   actionHandler: (
+    previousState: ActionState<OutputType>,
     inputData: InputType | FormData
   ) => Promise<ApiResponse<OutputType>>,
   optionsObject?: UseActionOptions<OutputType>
 ) {
+  // local options are stored in a ref so component re-renders don't cause an infinite loop
   const localOptions = useRef(optionsObject);
   localOptions.current = optionsObject;
+  // global options are stored in context so we can access them from anywhere
   const globalOptions = useContext(ApiContext);
 
-  const [hasJS, setHasJS] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const registeredPathsRef = useRef<Set<string>>(new Set<string>());
+  const [state, action, isPending] = useActionState(actionHandler, null);
+  const reasonsRef = useRef<Set<string>>(new Set<string>());
 
-  const [state, setState] = useState<ActionState<OutputType>>({
-    data: localOptions.current?.initialData,
-    status: undefined,
-    errors: []
-  });
-
-  const isPendingRef = useRef(false);
-
-  useEffect(() => {
-    setHasJS(true);
-  }, []);
-
-  useEffect(() => {
-    isPendingRef.current = isPending;
-  }, [isPending]);
-
-  const execute = useCallback(
-    async (inputData: InputType | FormData) => {
-      if (isPendingRef.current) return;
-
-      const options = {
-        ...globalOptions.options,
-        ...localOptions.current
-      };
-
-      options.onStart?.();
-
-      startTransition(async () => {
-        const actionResponse = await actionHandler(inputData);
-        const newRawErrors = actionResponse.errors ?? [];
-        const newState = {
-          data: actionResponse.data,
-          status: actionResponse.status,
-          errors: newRawErrors.map((err: ApiError) => ({
-            ...err,
-            isReasonRegistered: err.reason
-              ? registeredPathsRef.current.has(err.reason)
-              : undefined
-          }))
-        };
-        setState(newState);
-
-        const isSuccess = isSuccessStatus(newState.status);
-        const isError = !isSuccess && newState.status !== undefined;
-
-        if (isSuccess) {
-          options.onSuccess?.(newState.data as OutputType);
-        } else if (isError) {
-          if (options.onError) {
-            options.onError(newState.errors);
-          } else {
-            defaultOnError(newState.errors);
-          }
-        }
-
-        options.onComplete?.();
-      });
-    },
-    [actionHandler, isPendingRef]
-  );
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    execute(formData);
-  }
-
-  const handlers = {
-    // We ignore the return data here (cast to void) because this is only used
-    // when JavaScript is disabled (traditional POST request).
-    // This is required to support the new PR: https://github.com/DefinitelyTyped/DefinitelyTyped/pull/70197
-    action: actionHandler,
-    onSubmit: hasJS ? handleSubmit : undefined
-  };
-
-  const getFormError = useCallback(
+  const getError = useCallback(
     (name: string): string | undefined => {
-      if (!registeredPathsRef.current.has(name)) {
-        registeredPathsRef.current.add(name);
+      if (!reasonsRef.current.has(name)) {
+        reasonsRef.current.add(name);
       }
 
-      return state.errors.find((err) => 'reason' in err && err.reason === name)
-        ?.message;
+      const firstError = state?.errors?.find(
+        (err) => 'reason' in err && err.reason === name
+      );
+
+      return firstError?.message;
     },
-    [state.errors]
+    [state]
   );
 
-  const { status } = state;
   const isSuccess = useMemo(
-    () => status !== undefined && isSuccessStatus(status),
-    [status]
+    () => state !== null && isSuccessStatus(state.status),
+    [state]
   );
   const isError = useMemo(
-    () => status !== undefined && !isSuccessStatus(status),
-    [status]
+    () => state !== null && !isSuccessStatus(state.status),
+    [state]
   );
 
+  useEffect(() => {
+    if (isPending) {
+      globalOptions.options.onStart?.();
+      localOptions.current?.onStart?.();
+    } else if (isSuccess) {
+      globalOptions.options.onSuccess?.(state?.data as OutputType);
+      localOptions.current?.onSuccess?.(state?.data as OutputType);
+    } else if (isError) {
+      globalOptions.options.onError?.(state.errors);
+      localOptions.current?.onError?.(state.errors);
+    }
+  }, [state, isPending, isSuccess, isError]);
+
   return {
-    ...state,
+    data: state?.data,
+    status: state?.status,
+    errors: state?.errors || [],
     isPending,
     isSuccess,
     isError,
-    execute,
-    handlers,
-    getFormError
+    action,
+    getError
   };
 }

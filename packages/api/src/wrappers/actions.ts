@@ -2,23 +2,22 @@ import { z, ZodType } from 'zod';
 import { ApiResponse } from '../types';
 import { ApiHandler, execute } from './common';
 
-export type GeneratedActionHandler<InputType, OutputType> = (
-  input: InputType | FormData
+type GeneratedGenericActionHandler<InputType, OutputType> = (
+  input: InputType
 ) => Promise<ApiResponse<OutputType>>;
 
-export function wrapAction<InputType, OutputType>(
-  inputSchema: ZodType<InputType>,
-  outputSchema: ZodType<OutputType>,
-  fn: ApiHandler<InputType, OutputType>
-): GeneratedActionHandler<InputType, OutputType> {
-  return async function (
-    input: InputType | FormData
-  ): Promise<ApiResponse<OutputType>> {
-    return execute(inputSchema, outputSchema, fn, { input });
-  };
-}
+type GeneratedFormActionHandler<OutputType> = (
+  input: FormData
+) => Promise<ApiResponse<OutputType>>;
+
+export type GeneratedActionHandler<InputType, OutputType> =
+  | GeneratedGenericActionHandler<InputType, OutputType>
+  | GeneratedFormActionHandler<OutputType>;
+
+type ActionType = 'generic' | 'form';
 
 class ActionCreator<InputType = unknown, OutputType = unknown> {
+  actionType: ActionType = 'generic';
   inputSchema: ZodType<InputType>;
   outputSchema: ZodType<OutputType>;
   handlerFunc?: ApiHandler<InputType, OutputType>;
@@ -27,6 +26,11 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
     this.inputSchema = z.any();
     this.outputSchema = z.any();
     this.handlerFunc = undefined;
+  }
+
+  type(actionType: ActionType): ActionCreator<InputType, OutputType> {
+    this.actionType = actionType;
+    return this;
   }
 
   input<T>(inputSchema: ZodType<T>): ActionCreator<T, OutputType> {
@@ -52,11 +56,14 @@ class ActionCreator<InputType = unknown, OutputType = unknown> {
   handler(
     handlerFunc: ApiHandler<InputType, OutputType>
   ): GeneratedActionHandler<InputType, OutputType> {
-    return wrapAction<InputType, OutputType>(
-      this.inputSchema,
-      this.outputSchema,
-      handlerFunc
-    );
+    if (this.actionType === 'form') {
+    }
+
+    return async function (input: InputType): Promise<ApiResponse<OutputType>> {
+      return execute(this.inputSchema, this.outputSchema, handlerFunc, {
+        input
+      });
+    };
   }
 }
 

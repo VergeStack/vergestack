@@ -1,8 +1,8 @@
 import { ApiResponseStatus } from '@vergestack/api';
 import { ApiErrorWithMetadata } from '../types';
 
-export function isSuccessStatus(status?: ApiResponseStatus): boolean {
-  return !!status && status >= 200 && status < 300;
+export function isSuccessStatus(status: ApiResponseStatus): boolean {
+  return status >= 200 && status < 300;
 }
 
 export function defaultOnError(errors: ApiErrorWithMetadata[]) {
